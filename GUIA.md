@@ -41,6 +41,10 @@ Este guia é a fonte da verdade para quem escreve os posts (a rotina semanal do 
 
 Varie os temas: não repita o ângulo de nenhum post das últimas 4 semanas (veja `posts/`).
 
+**Temas obrigatórios** (pedido do dono):
+- **SEO e Google, pelo menos 2 posts por semana**: aparecer na busca do Google e no Google Maps, Perfil da Empresa no Google (horários, fotos, avaliações, categorias), busca local ("perto de mim"), site rápido e bem feito no celular, o que faz um site ser encontrado. Sempre prático: algo que o dono entende e faz ou percebe no próprio negócio. Sem promessa de "primeiro lugar no Google".
+- **Datas comerciais**: trabalhe cada data com 1 a 3 semanas de antecedência e durante a data. Em novembro, **Black November / Black Friday** atravessa o mês inteiro; depois Natal, Ano-Novo, volta às aulas, Carnaval, Dia das Mães, Dia dos Pais, Dia do Cliente etc. O ângulo é como a empresa do cliente vende mais nessas datas com site, Google e WhatsApp, e onde a VG entra. A VG não tem promoção própria definida: não invente desconto, brinde ou condição especial da VG.
+
 ## Pesquisa da semana (antes de escrever)
 
 Pesquise na web, em português:
