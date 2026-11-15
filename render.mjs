@@ -100,7 +100,11 @@ body.on-y { background: var(--y); color: var(--on-y); }
 body.on-y::after { opacity: .12; mix-blend-mode: multiply; }
 main { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 h1, h2 { font-weight: 800; letter-spacing: -0.032em; word-spacing: .05em; line-height: 1.02; text-wrap: balance; }
-mark { background: var(--y); color: var(--on-y); padding: 0 .08em; margin: 0 -.02em; border-radius: .06em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+/* Marca-texto: a caixa amarela é mais baixa que a altura da fonte (começa .12em abaixo do topo) e as linhas com
+   destaque ganham mais entrelinha, para a caixa nunca encostar nem cobrir as letras da linha de cima */
+h1:has(mark), h2:has(mark) { line-height: 1.17; }
+mark { --mk: var(--y); background: linear-gradient(var(--mk), var(--mk)) no-repeat 0 100% / 100% calc(100% - .12em);
+  color: var(--on-y); padding: 0 .1em; margin: 0 .03em; border-radius: .06em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
 .sub { font-size: 38px; line-height: 1.3; color: var(--soft); font-weight: 450; letter-spacing: -0.01em; max-width: 24ch; margin-top: 40px; text-wrap: pretty; }
 
 .cover, .statement { justify-content: flex-end; padding-bottom: 72px; }
@@ -129,7 +133,7 @@ mark { background: var(--y); color: var(--on-y); padding: 0 .08em; margin: 0 -.0
 .cta { justify-content: flex-end; padding-bottom: 72px; }
 .cta h1 { max-width: 9em; }
 .cta .sub { color: #3d3300; font-weight: 550; }
-.cta mark { background: var(--on-y); color: var(--y); }
+.cta mark { --mk: var(--on-y); color: var(--y); }
 
 footer { display: flex; justify-content: space-between; align-items: center; padding-top: 30px; border-top: 1px solid var(--line);
   font-size: 25px; font-weight: 550; letter-spacing: .005em; color: var(--soft); }
