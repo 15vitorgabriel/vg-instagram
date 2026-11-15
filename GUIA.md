@@ -60,7 +60,7 @@ Pesquise na web, em português:
 
 ## Formato dos arquivos
 
-Um arquivo por dia: `posts/AAAA-MM-DD.json` (dois no mesmo dia: `AAAA-MM-DD-1.json`, `-2`).
+Um arquivo por dia: `posts/AAAA-MM-DD.json` (dois no mesmo dia: `AAAA-MM-DD-1.json`, `-2`). Campo opcional `hora` (9, 12 ou 18; padrão 12): o post sai nesse horário de Brasília. O Instagram não pune mais de um post por dia, mas posts no mesmo dia devem sair espaçados (o segundo às 18h) e nunca ser parecidos entre si.
 
 ```json
 {

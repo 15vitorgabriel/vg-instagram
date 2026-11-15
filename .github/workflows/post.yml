@@ -4,7 +4,10 @@ name: Post do dia
 
 on:
   schedule:
+    # Posts saem no horário do campo "hora" (padrão 12); o job roda nos horários usados
+    - cron: "0 12 * * *" # 9h em Brasília
     - cron: "0 15 * * *" # 12h em Brasília
+    - cron: "0 21 * * *" # 18h em Brasília
   workflow_dispatch:
     inputs:
       date:
@@ -46,8 +49,11 @@ jobs:
             const [, m, d] = day.split("-").map(Number);
             if (vetos.split(" ").some(v => { const [vd, vm] = v.split("/").map(Number); return vd === d && vm === m; })) { console.error(`dia ${day} vetado`); process.exit(); }
             const done = fs.existsSync("published.json") ? JSON.parse(fs.readFileSync("published.json")) : {};
-            const ids = fs.readdirSync("posts").filter(f => f.startsWith(day)).map(f => f.slice(0, -5)).filter(id => !done[id]).sort();
-            console.log(ids.join(" "));' "$day" "$vetos")
+            // Agendado: só o que já chegou na hora (campo "hora", padrão 12h). Disparo manual com data publica tudo do dia.
+            const hour = process.argv[3] ? 24 : Number(new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo", hour: "numeric", hour12: false }));
+            const ids = fs.readdirSync("posts").filter(f => f.startsWith(day)).map(f => f.slice(0, -5)).filter(id => !done[id])
+              .filter(id => (JSON.parse(fs.readFileSync(`posts/${id}.json`)).hora ?? 12) <= hour).sort();
+            console.log(ids.join(" "));' "$day" "$vetos" "${{ inputs.date }}")
           echo "ids=$ids" >> "$GITHUB_OUTPUT"
           echo "dia $day: ${ids:-nada pendente}"
 

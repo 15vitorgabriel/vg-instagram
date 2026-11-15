@@ -1,10 +1,12 @@
 {
-  "caption": "Hoje é Black Friday. A da VG Tecnologia vai até segunda, 30/11: faltam 4 dias.\n\nSites feitos do zero com 20% de desconto e robôs de atendimento no WhatsApp com a implantação pela metade.\n\nChama no WhatsApp e peça a tabela completa. O link está na bio.\n\n#blackfriday #blacknovember #criacaodesites #automacao #vgtecnologia",
+  "hora": 18,
+  "caption": "Hoje é Black Friday, e na VG Tecnologia a oferta vai até segunda, 30/11: faltam 4 dias.\n\nSites feitos do zero com 20% de desconto no projeto e robôs de atendimento no WhatsApp com a implantação pela metade.\n\nChama no WhatsApp e peça a tabela completa. O link está na bio.\n\n#blackfriday #blacknovember #criacaodesites #automacao #vgtecnologia",
   "slides": [
     {
-      "t": "statement",
-      "title": "Hoje é [[Black Friday]]. A nossa vai até 30/11.",
-      "sub": "Faltam 4 dias. Sites com 20% off e robôs com implantação pela metade."
+      "t": "count",
+      "n": "4",
+      "title": "Hoje é Black Friday. Na VG, a oferta vai até [[30/11]].",
+      "sub": "Sites com 20% off. Robôs com implantação pela metade."
     }
   ]
 }
