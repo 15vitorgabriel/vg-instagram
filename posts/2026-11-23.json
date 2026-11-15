@@ -1,0 +1,11 @@
+{
+  "caption": "Na semana da Black Friday, muita empresa investe na oferta e esquece o caminho até ela.\n\nA promoção vive só no story e some em 24 horas. O link da bio leva para uma página com nove botões. A mensagem que chegou às 23h só é respondida no dia seguinte, quando o cliente já comprou em outro lugar.\n\nNenhum desses erros tem a ver com o desconto. Todos têm a ver com o cliente não conseguir fechar.\n\nAntes de sexta, vale olhar o seu caminho de compra com os olhos de quem chega agora.\n\nOrçamento pelo WhatsApp, link na bio.\n\n#blackfriday #vendasonline #whatsappbusiness #vgtecnologia",
+  "slides": [
+    { "t": "cover", "title": "A oferta está boa. O cliente [[não chega]] até ela.", "sub": "3 erros que custam venda na semana da Black Friday." },
+    { "t": "point", "n": "1", "title": "Oferta só no story", "body": "Em 24 horas ela some. Quem viu ontem e volta hoje para comprar não encontra mais nada." },
+    { "t": "point", "n": "2", "title": "Link da bio confuso", "body": "Nove botões, nenhum com a oferta. O cliente veio por uma coisa e precisa adivinhar onde ela está." },
+    { "t": "point", "n": "3", "title": "Resposta no dia seguinte", "body": "Ele mandou a mesma pergunta para três lojas às 23h. Comprou na que respondeu primeiro." },
+    { "t": "statement", "title": "Desconto atrai. [[Caminho curto]] fecha a venda.", "sub": "Oferta num endereço fixo, um botão claro e alguém respondendo a qualquer hora." },
+    { "t": "cta", "title": "Seu caminho de compra está [[pronto]] para sexta?" }
+  ]
+}

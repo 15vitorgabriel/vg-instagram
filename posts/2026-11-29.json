@@ -1,0 +1,11 @@
+{
+  "caption": "Por dentro de um projeto: o site da Estação Fitness, academia em Curitiba.\n\nQuem procura academia quer saber três coisas antes de aparecer: o que tem para fazer, como é o espaço e em que horário a aula cabe na rotina. O menu responde exatamente isso: Modalidades, Estrutura, Horários.\n\nE a decisão nunca fica longe. O botão de matrícula no WhatsApp está no topo da página, e logo na primeira tela tem o \"Como chegar\" para quem já quer ir conhecer.\n\nQuer um site pensado assim para a sua empresa? Orçamento pelo WhatsApp, link na bio.\n\n#criacaodesites #portfolio #academia #vgtecnologia",
+  "slides": [
+    { "t": "cover", "title": "Por dentro do site da [[Estação Fitness]].", "sub": "Academia em Curitiba." },
+    { "t": "shot", "image": "estacao-fitness.jpg", "domain": "estacao-fitness.com", "title": "O menu responde as [[dúvidas]] do aluno.", "body": "Modalidades, Estrutura, Horários. Na ordem em que quem procura academia pensa." },
+    { "t": "point", "n": "1", "title": "Matrícula sempre à vista", "body": "O botão de matrícula pelo WhatsApp fica no topo. O aluno decide e chama, sem procurar o número." },
+    { "t": "point", "n": "2", "title": "Como chegar na primeira tela", "body": "Para quem prefere conhecer antes de fechar, o caminho até a academia está a um toque." },
+    { "t": "point", "n": "3", "title": "Estrutura antes da visita", "body": "Musculação, lutas e ritmos apresentados no site. O aluno conhece o espaço antes de pisar nele." },
+    { "t": "cta", "title": "Um site que leva o cliente até a [[porta]]." }
+  ]
+}

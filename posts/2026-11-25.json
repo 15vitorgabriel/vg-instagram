@@ -1,0 +1,11 @@
+{
+  "caption": "Muita empresa chega pedindo um site novo quando o problema está em outro lugar. Às vezes é o WhatsApp que demora. Às vezes é o perfil no Google desatualizado. Às vezes é uma planilha que ninguém mais entende.\n\nA consultoria serve para isso: olhar o seu negócio digital inteiro, como o seu cliente olha, e dizer onde está o gargalo antes de você gastar com a solução errada.\n\nNo fim, você sai com um plano de melhorias reais, em ordem de prioridade. Se fizer sentido seguir com a gente, ótimo. Se não, o plano continua sendo seu.\n\nOrçamento pelo WhatsApp, link na bio.\n\n#consultoria #gestao #negocios #vgtecnologia",
+  "slides": [
+    { "t": "cover", "title": "Antes de gastar, saiba [[onde]] está o problema.", "sub": "Como funciona a consultoria da VG." },
+    { "t": "point", "n": "1", "title": "Diagnóstico", "body": "Olhamos site, Google, Instagram e WhatsApp do jeito que o seu cliente olha. E anotamos onde ele trava." },
+    { "t": "point", "n": "2", "title": "Tecnologia certa", "body": "Nem todo problema pede um sistema. Às vezes um ajuste no site resolve. A indicação é a que serve para o seu caso." },
+    { "t": "point", "n": "3", "title": "Plano de melhorias", "body": "O que fazer primeiro, o que pode esperar e por quê. Um plano que dá para colocar em prática." },
+    { "t": "statement", "title": "Você sai com o plano na [[mão]].", "sub": "E decide com calma o que fazer com ele, com a gente ou não." },
+    { "t": "cta", "title": "Vamos olhar o seu negócio [[juntos]]?" }
+  ]
+}
