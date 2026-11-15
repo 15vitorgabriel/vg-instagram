@@ -1,0 +1,77 @@
+# Resumo semanal: quando entram posts novos na fila, gera as prévias e abre uma issue "semana"
+# com imagem e legenda de cada um. O GitHub avisa o dono por e-mail/app; comentar "vetar DD/MM"
+# na issue impede o post daquele dia (o post.yml lê esses comentários).
+name: Resumo da semana
+
+on:
+  push:
+    branches: [main]
+    paths: ["posts/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency: resumo
+
+jobs:
+  resumo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Posts novos
+        id: novos
+        run: |
+          before="${{ github.event.before }}"
+          if [ -z "$before" ] || ! git cat-file -e "$before" 2>/dev/null; then before=$(git rev-list --max-parents=0 HEAD); fi
+          ids=$(git diff --name-only --diff-filter=A "$before" HEAD -- posts | sed 's#posts/##; s#\.json$##' | sort | tr '\n' ' ')
+          echo "ids=$ids" >> "$GITHUB_OUTPUT"
+          echo "novos: ${ids:-nenhum}"
+
+      - name: Prévias
+        if: steps.novos.outputs.ids != ''
+        env:
+          BROWSER: google-chrome
+        run: |
+          command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+          mkdir -p previa
+          for id in ${{ steps.novos.outputs.ids }}; do
+            node render.mjs "$id"
+            if [ -f "out/$id/reel.mp4" ]; then
+              ffmpeg -y -loglevel error -ss 1 -i "out/$id/reel.mp4" -frames:v 1 -vf scale=432:768 "previa/$id.jpg"
+            else
+              n=$(ls out/$id/*.jpg | wc -l)
+              ffmpeg -y -loglevel error -i "out/$id/%d.jpg" -vf "scale=432:540,tile=${n}x1:padding=10:color=0x2a2a2a" -frames:v 1 "previa/$id.jpg"
+            fi
+          done
+          git config user.name "vg-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add previa
+          git diff --cached --quiet || (git commit -m "Prévias: ${{ steps.novos.outputs.ids }}" && git push)
+
+      - name: Abrir resumo
+        if: steps.novos.outputs.ids != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const ids = process.argv[1].trim().split(/\s+/);
+            const raw = `https://raw.githubusercontent.com/${process.env.GITHUB_REPOSITORY}/main/previa`;
+            const dias = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+            const br = (id) => { const [y, m, d] = id.split("-").map(Number); return { dm: `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}`, dia: dias[new Date(Date.UTC(y, m - 1, d)).getUTCDay()] }; };
+            let body = "Posts que entraram na fila (todos às 12h). Para impedir um post, comente aqui: **vetar DD/MM** (ex.: `vetar " + br(ids[0]).dm + "`).\n\n";
+            for (const id of ids) {
+              const p = JSON.parse(fs.readFileSync(`posts/${id}.json`, "utf8"));
+              const { dm, dia } = br(id);
+              body += `### ${dia} ${dm}${id.length > 10 ? " (" + id.slice(11) + "º do dia)" : ""}\n![${id}](${raw}/${id}.jpg?v=${Date.now()})\n\n> ${p.caption.replace(/\n/g, "\n> ")}\n\n`;
+            }
+            fs.writeFileSync("resumo.md", body);
+            fs.writeFileSync("titulo.txt", `Posts de ${br(ids[0]).dm} a ${br(ids.at(-1)).dm}`);
+          ' "${{ steps.novos.outputs.ids }}"
+          gh label create semana --color FFCC00 --description "Resumo semanal de posts" --force
+          gh issue create --title "$(cat titulo.txt)" --label semana --body-file resumo.md
