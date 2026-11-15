@@ -38,10 +38,11 @@ const fit = (s, sizes) => { const n = s.replace(/\[\[|\]\]/g, "").length; return
 const total = post.slides.length;
 const asset = (f) => `../../assets/${f}`;
 
-const footer = (i, dark) => `
+// O logo já diz "VG": ao lado vai o @ do perfil, que ajuda quem vê o post compartilhado a achar a conta
+const footer = (i) => `
   <footer>
-    <div class="brand">${dark ? `<b>VG</b>` : `<img src="${asset("logo.png")}" alt="">`}<span>VG Tecnologia</span></div>
-    ${total > 1 ? `<span class="count">${i + 1}<i>/</i>${total}</span>` : `<span class="count">@_vgtecnologia</span>`}
+    <div class="brand"><img src="${asset("logo.png")}" alt=""><span>@_vgtecnologia</span></div>
+    <span class="count">${total > 1 ? `${i + 1}<i>/</i>${total}` : "vgtecnologia.com"}</span>
   </footer>`;
 
 const arrow = `<svg width="88" height="24" viewBox="0 0 88 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h82M72 2l12 10-12 10"/></svg>`;
@@ -62,8 +63,8 @@ const slides = {
   shot: (s) => `
     <main class="shot">
       <figure>
-        <div class="bar"><i></i><i></i><i></i><span>${esc(s.domain)}</span></div>
-        <img src="${asset(s.image)}" alt="">
+        <div class="bar"><i></i><i></i><i></i><span>${esc(new URL(s.url).hostname.replace(/^www\./, ""))}</span></div>
+        <img src="${s.capture}" alt="">
       </figure>
       <h2>${rich(s.title)}</h2>
       ${s.body ? `<p>${rich(s.body)}</p>` : ""}
@@ -132,22 +133,32 @@ footer { display: flex; justify-content: space-between; align-items: center; pad
 .brand { display: flex; align-items: center; gap: 16px; color: var(--ink); }
 .on-y .brand { color: var(--on-y); }
 .brand img { width: 46px; height: 46px; object-fit: contain; }
-.brand b { font-size: 30px; font-weight: 850; letter-spacing: -0.04em; }
+.on-y .brand img { filter: brightness(0); }
 .count { font-variant-numeric: tabular-nums; }
 .count i { font-style: normal; opacity: .45; margin: 0 .12em; }
 `;
 
+const shoot = (url, png, w, h, wait) => {
+  const r = spawnSync(BROWSER, ["--headless=new", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=1",
+    "--allow-file-access-from-files", `--virtual-time-budget=${wait}`, `--window-size=${w},${h}`, `--screenshot=${png}`, url]);
+  if (r.status !== 0) throw new Error(`navegador falhou em ${url}: ${r.stderr}`);
+};
+
 post.slides.forEach((s, i) => {
   if (!slides[s.t]) throw new Error(`lâmina ${i + 1}: tipo "${s.t}" não existe (use ${Object.keys(slides).join(", ")})`);
+  // Print do portfólio sempre tirado do site no ar na hora do render, nunca de imagem guardada
+  if (s.t === "shot") {
+    if (!s.url) throw new Error(`lâmina ${i + 1}: "shot" precisa de "url" (o site é capturado ao vivo)`);
+    s.capture = `site-${i + 1}.png`;
+    shoot(s.url, path.join(out, s.capture), 1440, 900, 12000);
+  }
   const dark = s.t === "cta";
   const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><style>${css}</style></head>
-    <body class="${dark ? "on-y" : ""}">${slides[s.t](s)}${footer(i, dark)}</body></html>`;
+    <body class="${dark ? "on-y" : ""}">${slides[s.t](s)}${footer(i)}</body></html>`;
   const file = path.join(out, `${i + 1}.html`);
   writeFileSync(file, html);
   const png = path.join(out, `${i + 1}.png`);
-  const r = spawnSync(BROWSER, ["--headless=new", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=1",
-    "--allow-file-access-from-files", "--virtual-time-budget=4000", `--window-size=${W},${H}`, `--screenshot=${png}`, pathToFileURL(file).href]);
-  if (r.status !== 0) throw new Error(`navegador falhou na lâmina ${i + 1}: ${r.stderr}`);
+  shoot(pathToFileURL(file).href, png, W, H, 4000);
   const j = spawnSync(process.env.FFMPEG || "ffmpeg", ["-y", "-loglevel", "error", "-i", png, "-q:v", "2", path.join(out, `${i + 1}.jpg`)]);
   if (j.status !== 0) throw new Error(`ffmpeg falhou na lâmina ${i + 1}: ${j.stderr}`);
   rmSync(png);

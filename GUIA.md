@@ -12,10 +12,10 @@ Este guia é a fonte da verdade para quem escreve os posts (a rotina semanal do 
   - **Automações Inteligentes**: robôs que atendem, agendam e confirmam clientes pelo WhatsApp, 24 horas por dia (feitos com N8N). Atendimento automático, agendamentos e confirmações, respostas instantâneas todos os dias.
   - **Consultoria**: diagnóstico do negócio digital, indicação das tecnologias ideais, plano de melhorias reais.
   - **Suporte e Manutenção**: do planejamento à entrega, e depois dela. Ajustes e evoluções conforme o cliente cresce.
-- **Portfólio real** (imagens em `assets/`):
-  - Estação Fitness (estacao-fitness.com, `estacao-fitness.jpg`): academia; modalidades, estrutura, horários e matrícula direto pelo WhatsApp.
-  - Randi Barbearia Visagista (randibarbearia.com, `randi-barbearia.jpg`): barbearia premium em Curitiba; cortes, planos, avaliações de clientes e agendamento online.
-  - Hudema Race Store (hudemaoficial.com.br, `hudema.jpg`): loja de drag race; catálogo e carrinho; em fase final de lançamento.
+- **Portfólio real** (conferido no ar em 15/11/2026; os sites mudam, então **antes de afirmar qualquer coisa sobre um deles, abra o site no ar e confira**; o site é carregado por JavaScript, então leia com o navegador headless, por exemplo `google-chrome --headless=new --virtual-time-budget=12000 --dump-dom URL`):
+  - Estação Fitness (https://estacao-fitness.com/): academia em Curitiba desde 2015; musculação, lutas e ritmos (5 modalidades); estrutura em 2 andares; horários da academia e de cada aula no site; botão "Matricule-se" e contato pelo WhatsApp.
+  - Randi Barbearia Visagista (https://randibarbearia.com/): barbearia premium em Curitiba; serviços com preço à vista, planos mensais com valores, avaliações do Google no próprio site, agendamento online, workshop "Barbeiro Prime" para barbeiros.
+  - Hudema Race Store (https://www.hudemaoficial.com.br/): loja oficial de drag race; hoje o site mostra página "EM BREVE" (lançamento em breve).
 - Pagamento: transferência, Pix e cartão. Valores e prazos: sob orçamento (nunca publique preço ou prazo).
 
 ## Regras que não se quebram
@@ -62,7 +62,7 @@ Um arquivo por dia: `posts/AAAA-MM-DD.json` (dois no mesmo dia: `AAAA-MM-DD-1.js
 Tipos de lâmina (`t`):
 - `cover`: capa do carrossel. `title` (até ~60 caracteres), `sub` opcional.
 - `point`: item numerado. `n` ("1", "2"...), `title` (até ~30), `body` (até ~140).
-- `shot`: print do portfólio. `image` (arquivo em `assets/`), `domain`, `title`, `body`.
+- `shot`: print do portfólio. `url` (endereço do site; o print é tirado do site no ar na hora do render), `title`, `body`. O texto precisa bater com o que o site mostra hoje.
 - `statement`: frase forte (imagem única ou no meio do carrossel). `title` (até ~80), `sub` opcional.
 - `cta`: lâmina final amarela. `title`, `sub` opcional (padrão: "Orçamento pelo WhatsApp. O link está na bio.").
 

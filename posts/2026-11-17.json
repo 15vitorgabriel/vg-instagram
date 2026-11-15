@@ -1,12 +1,44 @@
 {
   "caption": "Antes de mandar mensagem, o cliente já decidiu se vale a pena te chamar. E ele decide em cima de três perguntas: quanto custa, quando você atende e como ele fecha.\n\nSe o seu site não responde isso, quem responde é o concorrente que respondeu primeiro.\n\nNos projetos da Randi Barbearia e da Estação Fitness, essas três respostas estão na primeira rolagem da página. Arrasta pro lado que eu mostro como.\n\nQuer o seu assim? Orçamento pelo WhatsApp, link na bio.\n\n#criacaodesites #sitesprofissionais #marketingdigital #empreendedorismo",
   "slides": [
-    { "t": "cover", "title": "O cliente decide se vai te chamar antes de [[abrir o WhatsApp]].", "sub": "Seu site precisa responder 3 perguntas." },
-    { "t": "point", "n": "1", "title": "Quanto custa?", "body": "Ninguém gosta de perguntar preço e esperar resposta. Se você tem plano ou faixa de valor, mostra." },
-    { "t": "point", "n": "2", "title": "Quando você atende?", "body": "Horário escondido num destaque do Instagram não conta. Ele precisa estar onde o cliente já está olhando." },
-    { "t": "point", "n": "3", "title": "Como eu fecho?", "body": "Um botão, uma ação: agendar, matricular, comprar. Se o cliente tem que caçar o seu número, ele fecha a aba." },
-    { "t": "shot", "image": "randi-barbearia.jpg", "domain": "randibarbearia.com", "title": "Planos e [[agendamento]] na mesma página.", "body": "Randi Barbearia: o cliente vê o corte, o preço e já marca o horário." },
-    { "t": "shot", "image": "estacao-fitness.jpg", "domain": "estacao-fitness.com", "title": "Horário de cada modalidade, [[matrícula]] no WhatsApp.", "body": "Estação Fitness: o aluno decide e manda mensagem já sabendo o que quer." },
-    { "t": "cta", "title": "Seu site responde isso [[antes]] do cliente perguntar?" }
+    {
+      "t": "cover",
+      "title": "O cliente decide se vai te chamar antes de [[abrir o WhatsApp]].",
+      "sub": "Seu site precisa responder 3 perguntas."
+    },
+    {
+      "t": "point",
+      "n": "1",
+      "title": "Quanto custa?",
+      "body": "Ninguém gosta de perguntar preço e esperar resposta. Se você tem plano ou faixa de valor, mostra."
+    },
+    {
+      "t": "point",
+      "n": "2",
+      "title": "Quando você atende?",
+      "body": "Horário escondido num destaque do Instagram não conta. Ele precisa estar onde o cliente já está olhando."
+    },
+    {
+      "t": "point",
+      "n": "3",
+      "title": "Como eu fecho?",
+      "body": "Um botão, uma ação: agendar, matricular, comprar. Se o cliente tem que caçar o seu número, ele fecha a aba."
+    },
+    {
+      "t": "shot",
+      "title": "Planos e [[agendamento]] na mesma página.",
+      "body": "Randi Barbearia: o cliente vê o corte, o preço e já marca o horário.",
+      "url": "https://randibarbearia.com/"
+    },
+    {
+      "t": "shot",
+      "title": "Horário de cada modalidade, [[matrícula]] no WhatsApp.",
+      "body": "Estação Fitness: o aluno decide e manda mensagem já sabendo o que quer.",
+      "url": "https://estacao-fitness.com/"
+    },
+    {
+      "t": "cta",
+      "title": "Seu site responde isso [[antes]] do cliente perguntar?"
+    }
   ]
 }

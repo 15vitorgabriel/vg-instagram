@@ -8,22 +8,21 @@
     },
     {
       "t": "shot",
-      "image": "randi-barbearia.jpg",
-      "domain": "randibarbearia.com",
       "title": "A primeira tela já vende.",
-      "body": "Foto real do espaço, proposta clara e o botão de agendar no topo."
+      "body": "Foto real do espaço, proposta clara e o botão de agendar no topo.",
+      "url": "https://randibarbearia.com/"
     },
     {
       "t": "point",
       "n": "1",
       "title": "Cortes e planos",
-      "body": "Cada serviço explicado, e planos para quem é cliente de todo mês."
+      "body": "Cada serviço com o preço à vista, e planos mensais para quem é cliente de todo mês."
     },
     {
       "t": "point",
       "n": "2",
-      "title": "Avaliações de clientes",
-      "body": "Quem chega vê o que outros clientes falaram antes de marcar o primeiro horário."
+      "title": "Avaliações do Google",
+      "body": "As avaliações do Google aparecem no próprio site: quem chega vê o que outros clientes falaram antes de marcar."
     },
     {
       "t": "point",
