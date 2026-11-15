@@ -51,7 +51,7 @@ jobs:
             const done = fs.existsSync("published.json") ? JSON.parse(fs.readFileSync("published.json")) : {};
             // Agendado: só o que já chegou na hora (campo "hora", padrão 12h). Disparo manual com data publica tudo do dia.
             const hour = process.argv[3] ? 24 : Number(new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo", hour: "numeric", hour12: false }));
-            const ids = fs.readdirSync("posts").filter(f => f.startsWith(day)).map(f => f.slice(0, -5)).filter(id => !done[id])
+            const ids = fs.readdirSync("posts").filter(f => f.startsWith(day)).map(f => f.slice(0, -5)).filter(id => !done[id] || done[id].partial)
               .filter(id => (JSON.parse(fs.readFileSync(`posts/${id}.json`)).hora ?? 12) <= hour).sort();
             console.log(ids.join(" "));' "$day" "$vetos" "${{ inputs.date }}")
           echo "ids=$ids" >> "$GITHUB_OUTPUT"

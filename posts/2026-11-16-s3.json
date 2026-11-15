@@ -1,0 +1,24 @@
+{
+  "hora": 12,
+  "story": true,
+  "slides": [
+    {
+      "t": "shot",
+      "url": "https://randibarbearia.com/",
+      "title": "Randi Barbearia",
+      "body": "Preços à vista, planos mensais, avaliações do Google e agendamento online."
+    },
+    {
+      "t": "shot",
+      "url": "https://estacao-fitness.com/",
+      "title": "Estação Fitness",
+      "body": "Modalidades, estrutura, horários das aulas e matrícula pelo WhatsApp."
+    },
+    {
+      "t": "shot",
+      "url": "https://www.hudemaoficial.com.br/",
+      "title": "Hudema Race Store",
+      "body": "Loja oficial de drag race, com catálogo e carrinho. Lançamento em breve."
+    }
+  ]
+}

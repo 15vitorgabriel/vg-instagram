@@ -26,7 +26,7 @@ const [date, flag] = process.argv.slice(2);
 const dry = flag === "--dry-run";
 // --check monta o post no Instagram (containers) e para antes de publicar: testa token, URL e mídia sem postar
 const check = flag === "--check";
-if (!/^\d{4}-\d{2}-\d{2}(-\d+)?$/.test(date ?? "")) throw new Error("uso: node publish.mjs AAAA-MM-DD[-N] [--dry-run]");
+if (!/^\d{4}-\d{2}-\d{2}(-[a-z0-9]+)?$/.test(date ?? "")) throw new Error("uso: node publish.mjs AAAA-MM-DD[-N] [--dry-run]");
 
 const { IG_USER_ID, IG_ACCESS_TOKEN, MEDIA_BASE_URL } = process.env;
 if (!dry && !(IG_USER_ID && IG_ACCESS_TOKEN && MEDIA_BASE_URL)) throw new Error("faltam IG_USER_ID, IG_ACCESS_TOKEN ou MEDIA_BASE_URL");
@@ -39,7 +39,7 @@ const video = post.video && `${MEDIA_BASE_URL}/${date}/reel.mp4`;
 // Registro do que já saiu: se o workflow rodar duas vezes no mesmo dia, o segundo não posta de novo
 const logFile = path.join(here, "published.json");
 const log = existsSync(logFile) ? JSON.parse(readFileSync(logFile, "utf8")) : {};
-if (log[date]) { console.log(`${date} já publicado (${log[date].id}), nada a fazer`); process.exit(0); }
+if (log[date] && !log[date].partial) { console.log(`${date} já publicado, nada a fazer`); process.exit(0); }
 
 if (dry) { console.log({ caption, images, video }); process.exit(0); }
 
@@ -63,6 +63,22 @@ async function ready(id) {
     await sleep(4000);
   }
   throw new Error(`container ${id}: tempo esgotado`);
+}
+
+// Stories: cada imagem é publicada como um story separado, na ordem das lâminas. O registro guarda o progresso
+// a cada story, para uma nova execução continuar de onde parou em vez de repetir os que já saíram.
+if (post.story) {
+  const ids = log[date]?.ids ?? [];
+  for (const image_url of images.slice(ids.length)) {
+    const { id: c } = await call(`${IG_USER_ID}/media`, { image_url, media_type: "STORIES" });
+    await ready(c);
+    if (check) { console.log(`${date}: story ${c} pronto, NÃO publicado (--check)`); continue; }
+    ids.push((await call(`${IG_USER_ID}/media_publish`, { creation_id: c })).id);
+    log[date] = { ids, partial: ids.length < images.length, at: new Date().toISOString() };
+    writeFileSync(logFile, JSON.stringify(log, null, 2) + "\n");
+  }
+  console.log(`${date}: ${check ? "stories prontos" : `${ids.length} stories publicados`}`);
+  process.exit(0);
 }
 
 let creation;

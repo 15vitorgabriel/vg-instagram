@@ -1,0 +1,26 @@
+{
+  "hora": 12,
+  "story": true,
+  "slides": [
+    {
+      "t": "statement",
+      "title": "Quanto [[custa]]?",
+      "sub": "Depende do tipo de projeto. Chama no WhatsApp e peça a tabela: ela tem o valor de cada serviço."
+    },
+    {
+      "t": "statement",
+      "title": "Quanto tempo [[leva]]?",
+      "sub": "Depende do escopo. Assim que ele é definido, você recebe um cronograma com as etapas e os prazos."
+    },
+    {
+      "t": "statement",
+      "title": "Como eu [[pago]]?",
+      "sub": "Pix: 50% para começar e 50% na entrega. Cartão: valor integral no início, parcelado pela operadora."
+    },
+    {
+      "t": "statement",
+      "title": "E depois da [[entrega]]?",
+      "sub": "Suporte e manutenção contínuos, incluídos na mensalidade. O projeto continua evoluindo com você."
+    }
+  ]
+}

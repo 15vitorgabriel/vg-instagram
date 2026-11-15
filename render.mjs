@@ -12,11 +12,11 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const BROWSER = process.env.BROWSER || "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe";
-const W = 1080, H = 1350;
+const W = 1080;
 
 // Vários posts no mesmo dia levam sufixo: 2026-11-16-1, 2026-11-16-2...
 const date = process.argv[2];
-if (!/^\d{4}-\d{2}-\d{2}(-\d+)?$/.test(date ?? "")) throw new Error("uso: node render.mjs AAAA-MM-DD[-N]");
+if (!/^\d{4}-\d{2}-\d{2}(-[a-z0-9]+)?$/.test(date ?? "")) throw new Error("uso: node render.mjs AAAA-MM-DD[-N]");
 const post = JSON.parse(readFileSync(path.join(here, "posts", `${date}.json`), "utf8"));
 const out = path.join(here, "out", date);
 rmSync(out, { recursive: true, force: true });
@@ -36,13 +36,15 @@ const rich = (s = "") => esc(s).replace(/\[\[(.+?)\]\]/g, "<mark>$1</mark>").rep
 const fit = (s, sizes) => { const n = s.replace(/\[\[|\]\]/g, "").length; return sizes.find(([max]) => n <= max)?.[1] ?? sizes.at(-1)[1]; };
 
 const total = post.slides.length;
+// story: true → cada lâmina vira um story 1080x1920 (com margem para a interface do Instagram em cima e embaixo)
+const H = post.story ? 1920 : 1350;
 const asset = (f) => `../../assets/${f}`;
 
 // O logo já diz "VG": ao lado vai o @ do perfil, que ajuda quem vê o post compartilhado a achar a conta
 const footer = (i) => `
   <footer>
     <div class="brand"><img src="${asset("logo.png")}" alt=""><span>@_vgtecnologia</span></div>
-    <span class="count">${total > 1 ? `${i + 1}<i>/</i>${total}` : "vgtecnologia.com"}</span>
+    <span class="count">${total > 1 && !post.story ? `${i + 1}<i>/</i>${total}` : "vgtecnologia.com"}</span>
   </footer>`;
 
 const arrow = `<svg width="88" height="24" viewBox="0 0 88 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h82M72 2l12 10-12 10"/></svg>`;
@@ -137,7 +139,10 @@ mark { --mk: var(--y); background: linear-gradient(var(--mk), var(--mk)) no-repe
 .shot h2 { font-size: 68px; margin-top: 60px; max-width: 12em; }
 .shot p { font-size: 36px; line-height: 1.34; color: #c4c4c4; font-weight: 420; margin-top: 26px; max-width: 30ch; text-wrap: pretty; }
 
+body.story { padding: 260px 84px 330px; }
+body.story main { justify-content: center; padding-bottom: 0; }
 body.bf { padding-top: 132px; }
+body.story.bf { padding-top: 300px; }
 body.bf::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 46px;
   background: repeating-linear-gradient(-45deg, var(--y) 0 34px, var(--bg) 34px 68px); }
 .count { justify-content: center; }
@@ -177,7 +182,7 @@ post.slides.forEach((s, i) => {
   }
   const dark = s.t === "cta";
   const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><style>${css}</style></head>
-    <body class="${dark ? "on-y" : s.t === "count" ? "bf" : ""}">${slides[s.t](s)}${footer(i)}</body></html>`;
+    <body class="${dark ? "on-y" : s.t === "count" ? "bf" : ""}${post.story ? " story" : ""}">${slides[s.t](s)}${footer(i)}</body></html>`;
   const file = path.join(out, `${i + 1}.html`);
   writeFileSync(file, html);
   const png = path.join(out, `${i + 1}.png`);

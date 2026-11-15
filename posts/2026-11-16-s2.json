@@ -1,0 +1,21 @@
+{
+  "hora": 12,
+  "story": true,
+  "slides": [
+    {
+      "t": "statement",
+      "title": "Sites que [[vendem 24h]].",
+      "sub": "Landing page, institucional, multipáginas e premium. Rápidos no celular e prontos para o Google."
+    },
+    {
+      "t": "statement",
+      "title": "Robôs que [[atendem]] no seu WhatsApp.",
+      "sub": "Respondem na hora, agendam no Google Agenda, confirmam e lembram o cliente. 24 horas por dia."
+    },
+    {
+      "t": "statement",
+      "title": "Sistemas [[sob medida]].",
+      "sub": "Agenda, clientes, planos e pagamentos num lugar só. E diagnóstico digital para saber por onde começar."
+    }
+  ]
+}

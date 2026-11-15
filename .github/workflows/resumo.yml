@@ -45,7 +45,7 @@ jobs:
               ffmpeg -y -loglevel error -ss 1 -i "out/$id/reel.mp4" -frames:v 1 -vf scale=432:768 "previa/$id.jpg"
             else
               n=$(ls out/$id/*.jpg | wc -l)
-              ffmpeg -y -loglevel error -i "out/$id/%d.jpg" -vf "scale=432:540,tile=${n}x1:padding=10:color=0x2a2a2a" -frames:v 1 "previa/$id.jpg"
+              ffmpeg -y -loglevel error -i "out/$id/%d.jpg" -vf "scale=-2:540,tile=${n}x1:padding=10:color=0x2a2a2a" -frames:v 1 "previa/$id.jpg"
             fi
           done
           git config user.name "vg-bot"
@@ -64,11 +64,13 @@ jobs:
             const raw = `https://raw.githubusercontent.com/${process.env.GITHUB_REPOSITORY}/main/previa`;
             const dias = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
             const br = (id) => { const [y, m, d] = id.split("-").map(Number); return { dm: `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}`, dia: dias[new Date(Date.UTC(y, m - 1, d)).getUTCDay()] }; };
-            let body = "Posts que entraram na fila (todos às 12h). Para impedir um post, comente aqui: **vetar DD/MM** (ex.: `vetar " + br(ids[0]).dm + "`).\n\n";
+            let body = "Posts que entraram na fila. Para impedir um dia, comente aqui: **vetar DD/MM** (ex.: `vetar " + br(ids[0]).dm + "`).\n\n";
             for (const id of ids) {
               const p = JSON.parse(fs.readFileSync(`posts/${id}.json`, "utf8"));
               const { dm, dia } = br(id);
-              body += `### ${dia} ${dm}${id.length > 10 ? " (" + id.slice(11) + "º do dia)" : ""}\n![${id}](${raw}/${id}.jpg?v=${Date.now()})\n\n> ${p.caption.replace(/\n/g, "\n> ")}\n\n`;
+              const tipo = p.story ? "stories para destaque" : id.length > 10 ? `${id.slice(11)}º do dia` : "";
+              body += `### ${dia} ${dm} · ${p.hora ?? 12}h${tipo ? " · " + tipo : ""}\n![${id}](${raw}/${id}.jpg?v=${Date.now()})\n\n`;
+              if (p.caption) body += `> ${p.caption.replace(/\n/g, "\n> ")}\n\n`;
             }
             fs.writeFileSync("resumo.md", body);
             fs.writeFileSync("titulo.txt", `Posts de ${br(ids[0]).dm} a ${br(ids.at(-1)).dm}`);

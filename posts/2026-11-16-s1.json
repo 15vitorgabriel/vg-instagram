@@ -1,0 +1,16 @@
+{
+  "hora": 12,
+  "story": true,
+  "slides": [
+    {
+      "t": "statement",
+      "title": "Prazer, [[VG Tecnologia]].",
+      "sub": "Sites, robôs de WhatsApp e sistemas feitos do zero para a sua empresa crescer."
+    },
+    {
+      "t": "statement",
+      "title": "Cada projeto começa [[do zero]].",
+      "sub": "Nada de template. Do planejamento à entrega, e depois dela: suporte e manutenção fazem parte."
+    }
+  ]
+}
