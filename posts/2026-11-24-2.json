@@ -1,9 +1,10 @@
 {
-  "caption": "Última semana da Black November na VG Tecnologia.\n\nSites com 20% de desconto no projeto e robôs de WhatsApp com a implantação pela metade, para projetos fechados até 30/11. Dezembro já começa com a tabela cheia.\n\nChama no WhatsApp e peça a tabela completa. O link está na bio.\n\n#blacknovember #blackfriday #criacaodesites #vgtecnologia",
+  "caption": "Faltam 7 dias para o fim da Black November na VG Tecnologia.\n\nSites com 20% de desconto no projeto e robôs de WhatsApp com a implantação pela metade, para projetos fechados até 30/11. Dezembro já começa com a tabela cheia.\n\nChama no WhatsApp e peça a tabela completa. O link está na bio.\n\n#blacknovember #blackfriday #criacaodesites #vgtecnologia",
   "slides": [
     {
-      "t": "statement",
-      "title": "Última semana da [[Black November]] na VG.",
+      "t": "count",
+      "n": "7",
+      "title": "para o fim da [[Black November]] da VG.",
       "sub": "Sites com 20% off e robôs com implantação pela metade, até 30/11."
     }
   ]

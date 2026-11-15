@@ -75,6 +75,13 @@ const slides = {
       <h1 style="font-size:${fit(s.title, [[40, 132], [70, 112], [110, 94], [999, 80]])}px">${rich(s.title)}</h1>
       ${s.sub ? `<p class="sub">${rich(s.sub)}</p>` : ""}
     </main>`,
+  // Contagem regressiva de campanha: número gigante + faixa de alerta no topo (mesma linguagem da página da Black no PDF)
+  count: (s) => `
+    <main class="count">
+      <div class="n"><span>${esc(s.n)}</span><em>${esc(s.unit ?? "dias")}</em></div>
+      <h1 style="font-size:${fit(s.title, [[40, 96], [70, 84], [999, 72]])}px">${rich(s.title)}</h1>
+      ${s.sub ? `<p class="sub">${rich(s.sub)}</p>` : ""}
+    </main>`,
   cta: (s) => `
     <main class="cta">
       <h1 style="font-size:${fit(s.title, [[40, 128], [70, 108], [999, 92]])}px">${rich(s.title)}</h1>
@@ -130,6 +137,14 @@ mark { --mk: var(--y); background: linear-gradient(var(--mk), var(--mk)) no-repe
 .shot h2 { font-size: 68px; margin-top: 60px; max-width: 12em; }
 .shot p { font-size: 36px; line-height: 1.34; color: #c4c4c4; font-weight: 420; margin-top: 26px; max-width: 30ch; text-wrap: pretty; }
 
+body.bf { padding-top: 132px; }
+body.bf::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 46px;
+  background: repeating-linear-gradient(-45deg, var(--y) 0 34px, var(--bg) 34px 68px); }
+.count { justify-content: center; }
+.count .n { display: flex; align-items: baseline; gap: 26px; color: var(--y); }
+.count .n span { font-size: 430px; font-weight: 900; letter-spacing: -0.06em; line-height: .8; font-variant-numeric: tabular-nums; }
+.count .n em { font-style: normal; font-size: 112px; font-weight: 850; letter-spacing: -0.04em; color: var(--ink); }
+.count h1 { margin-top: 64px; max-width: 11em; }
 .cta { justify-content: flex-end; padding-bottom: 72px; }
 .cta h1 { max-width: 9em; }
 .cta .sub { color: #3d3300; font-weight: 550; }
@@ -162,7 +177,7 @@ post.slides.forEach((s, i) => {
   }
   const dark = s.t === "cta";
   const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><style>${css}</style></head>
-    <body class="${dark ? "on-y" : ""}">${slides[s.t](s)}${footer(i)}</body></html>`;
+    <body class="${dark ? "on-y" : s.t === "count" ? "bf" : ""}">${slides[s.t](s)}${footer(i)}</body></html>`;
   const file = path.join(out, `${i + 1}.html`);
   writeFileSync(file, html);
   const png = path.join(out, `${i + 1}.png`);
