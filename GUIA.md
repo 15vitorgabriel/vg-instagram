@@ -21,7 +21,7 @@ Este guia é a fonte da verdade para quem escreve os posts (a rotina semanal do 
 
 ## Ofertas ativas
 
-- **Black November VG, válida até 30/11/2026** (projetos fechados até essa data). Sites: 20% off no projeto (Landing Page de R$ 1.497 por R$ 1.197; Institucional de R$ 2.497 por R$ 1.997; Multipáginas de R$ 3.997 por R$ 3.197; Premium a partir de R$ 4.797). Robôs: implantação pela metade (Atendente de R$ 797 por R$ 397; Agendador de R$ 1.497 por R$ 747; IA Avançado de R$ 2.997 por R$ 1.497). Mensalidades sem alteração. Os posts da campanha já estão na fila (sufixo -2 em 17, 19, 21, 24, 27 e 29/11); depois de 30/11 não mencione mais a Black.
+- **Black November VG, válida até 30/11/2026** (projetos fechados até essa data). Sites: 20% off no projeto (Landing Page de R$ 1.497 por R$ 1.197; Institucional de R$ 2.497 por R$ 1.997; Multipáginas de R$ 3.997 por R$ 3.197; Premium a partir de R$ 4.797). Robôs: implantação pela metade (Atendente de R$ 797 por R$ 397; Agendador de R$ 1.497 por R$ 747; IA Avançado de R$ 2.997 por R$ 1.497). Mensalidades sem alteração. Os posts da campanha já estão na fila (16-0 com contagem de 15 dias; sufixo -2 em 19, 21, 24, 27 e 29/11); depois de 30/11 não mencione mais a Black.
 - Nenhuma outra. Não invente desconto, brinde ou condição da VG.
 
 ## Regras que não se quebram
@@ -74,6 +74,7 @@ Tipos de lâmina (`t`):
 - `point`: item numerado. `n` ("1", "2"...), `title` (até ~30), `body` (até ~140). `price` opcional: `["R$ 1.497", "R$ 1.197"]` (de, por) mostra o antigo riscado e o novo em destaque; use só em post de oferta.
 - `shot`: print do portfólio. `url` (endereço do site; o print é tirado do site no ar na hora do render), `title`, `body`. O texto precisa bater com o que o site mostra hoje.
 - `statement`: frase forte (imagem única ou no meio do carrossel). `title` (até ~80), `sub` opcional.
+- `count`: contagem regressiva de campanha. `n` (número), `unit` opcional (padrão "dias"), `title`, `sub`. Número gigante com faixa de alerta no topo; só para campanhas com prazo.
 - `cta`: lâmina final amarela. `title`, `sub` opcional (padrão: "Orçamento pelo WhatsApp. O link está na bio.").
 
 `[[palavra]]` vira o marca-texto amarelo: no máximo uma ou duas palavras por título. Carrossel: cover, 3–5 lâminas de conteúdo, cta no fim. Imagem única: um `statement`.
