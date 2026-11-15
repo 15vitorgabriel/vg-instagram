@@ -16,7 +16,13 @@ Este guia é a fonte da verdade para quem escreve os posts (a rotina semanal do 
   - Estação Fitness (https://estacao-fitness.com/): academia em Curitiba desde 2015; musculação, lutas e ritmos (5 modalidades); estrutura em 2 andares; horários da academia e de cada aula no site; botão "Matricule-se" e contato pelo WhatsApp.
   - Randi Barbearia Visagista (https://randibarbearia.com/): barbearia premium em Curitiba; serviços com preço à vista, planos mensais com valores, avaliações do Google no próprio site, agendamento online, workshop "Barbeiro Prime" para barbeiros.
   - Hudema Race Store (https://www.hudemaoficial.com.br/): loja oficial de drag race; hoje o site mostra página "EM BREVE" (lançamento em breve).
-- Pagamento: transferência, Pix e cartão. Valores e prazos: sob orçamento (nunca publique preço ou prazo).
+- Pagamento: Pix (50% para iniciar, 50% na entrega) ou cartão (integral, parcelado pela operadora). Prazos: sob orçamento (nunca publique prazo).
+- **Preço**: a tabela completa nunca vai para o feed (ela é enviada no WhatsApp, em PDF). Preço só aparece em post de **oferta ativa** listada abaixo, no formato de/por. Fora disso, nenhum valor.
+
+## Ofertas ativas
+
+- **Black November VG, válida até 30/11/2026** (projetos fechados até essa data). Sites: 20% off no projeto (Landing Page de R$ 1.497 por R$ 1.197; Institucional de R$ 2.497 por R$ 1.997; Multipáginas de R$ 3.997 por R$ 3.197; Premium a partir de R$ 4.797). Robôs: implantação pela metade (Atendente de R$ 797 por R$ 397; Agendador de R$ 1.497 por R$ 747; IA Avançado de R$ 2.997 por R$ 1.497). Mensalidades sem alteração. Os posts da campanha já estão na fila (sufixo -2 em 17, 19, 21, 24, 27 e 29/11); depois de 30/11 não mencione mais a Black.
+- Nenhuma outra. Não invente desconto, brinde ou condição da VG.
 
 ## Regras que não se quebram
 
@@ -65,7 +71,7 @@ Um arquivo por dia: `posts/AAAA-MM-DD.json` (dois no mesmo dia: `AAAA-MM-DD-1.js
 
 Tipos de lâmina (`t`):
 - `cover`: capa do carrossel. `title` (até ~60 caracteres), `sub` opcional.
-- `point`: item numerado. `n` ("1", "2"...), `title` (até ~30), `body` (até ~140).
+- `point`: item numerado. `n` ("1", "2"...), `title` (até ~30), `body` (até ~140). `price` opcional: `["R$ 1.497", "R$ 1.197"]` (de, por) mostra o antigo riscado e o novo em destaque; use só em post de oferta.
 - `shot`: print do portfólio. `url` (endereço do site; o print é tirado do site no ar na hora do render), `title`, `body`. O texto precisa bater com o que o site mostra hoje.
 - `statement`: frase forte (imagem única ou no meio do carrossel). `title` (até ~80), `sub` opcional.
 - `cta`: lâmina final amarela. `title`, `sub` opcional (padrão: "Orçamento pelo WhatsApp. O link está na bio.").

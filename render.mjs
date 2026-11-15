@@ -59,6 +59,7 @@ const slides = {
       <span class="num">${s.n}</span>
       <h2 style="font-size:${fit(s.title, [[22, 92], [40, 78], [999, 66]])}px">${rich(s.title)}</h2>
       <p>${rich(s.body)}</p>
+      ${s.price ? `<div class="price">${s.price[0] ? `<s>${esc(s.price[0])}</s>` : ""}<mark>${esc(s.price[1])}</mark></div>` : ""}
     </main>`,
   shot: (s) => `
     <main class="shot">
@@ -112,6 +113,9 @@ mark { background: var(--y); color: var(--on-y); padding: 0 .08em; margin: 0 -.0
 .point h2 { max-width: 11em; }
 .point p { font-size: 40px; line-height: 1.34; color: #c4c4c4; font-weight: 420; margin-top: 36px; max-width: 29ch; text-wrap: pretty; letter-spacing: -0.005em; }
 
+.point .price { margin-top: 48px; display: flex; align-items: baseline; gap: 22px; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.point .price s { font-size: 40px; color: var(--soft); font-weight: 600; text-decoration-thickness: 3px; }
+.point .price mark { font-size: 76px; line-height: 1.05; }
 .shot { justify-content: flex-start; padding-top: 8px; }
 .shot figure { border-radius: 20px; overflow: hidden; border: 1px solid var(--line); background: #0e0e0e;
   box-shadow: 0 34px 70px -20px rgba(0,0,0,.75), 0 8px 18px rgba(0,0,0,.35); }
