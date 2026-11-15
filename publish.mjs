@@ -24,6 +24,8 @@ if (existsSync(envFile)) {
 
 const [date, flag] = process.argv.slice(2);
 const dry = flag === "--dry-run";
+// --check monta o post no Instagram (containers) e para antes de publicar: testa token, URL e mídia sem postar
+const check = flag === "--check";
 if (!/^\d{4}-\d{2}-\d{2}(-\d+)?$/.test(date ?? "")) throw new Error("uso: node publish.mjs AAAA-MM-DD[-N] [--dry-run]");
 
 const { IG_USER_ID, IG_ACCESS_TOKEN, MEDIA_BASE_URL } = process.env;
@@ -80,6 +82,7 @@ if (video) {
   creation = (await call(`${IG_USER_ID}/media`, { media_type: "CAROUSEL", children: kids.join(","), caption })).id;
 }
 await ready(creation);
+if (check) { console.log(`${date}: container ${creation} pronto, NÃO publicado (--check)`); process.exit(0); }
 const { id } = await call(`${IG_USER_ID}/media_publish`, { creation_id: creation });
 
 log[date] = { id, at: new Date().toISOString() };
