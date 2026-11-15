@@ -1,0 +1,11 @@
+{
+  "caption": "Prazer, VG Tecnologia.\n\nA gente cria site, sistema e atendimento automático no WhatsApp para pequenas empresas. Tudo feito do zero, em cima de como o seu negócio funciona de verdade.\n\nSite que mostra preço, horário e o botão certo. Sistema que tira a agenda do caderno. Robô que responde e confirma horário enquanto você está atendendo.\n\nE depois da entrega a gente continua: suporte e manutenção fazem parte.\n\nOrçamento pelo WhatsApp, link na bio.\n\n#vgtecnologia #criacaodesites #automacao #whatsappbusiness #pequenasempresas",
+  "slides": [
+    { "t": "cover", "title": "Prazer, [[VG Tecnologia]].", "sub": "Site, sistema e atendimento automático para pequenas empresas." },
+    { "t": "point", "n": "1", "title": "Sites que vendem", "body": "Feitos do zero para a sua marca. Rápidos no celular, com preço, horário e o botão de contato onde o cliente procura." },
+    { "t": "point", "n": "2", "title": "Sistemas sob medida", "body": "Agenda, clientes, planos, pagamentos. O que hoje vive no caderno ou na planilha vira um sistema seu." },
+    { "t": "point", "n": "3", "title": "WhatsApp que atende sozinho", "body": "Um robô que responde, agenda e confirma horário 24 horas por dia. Inclusive quando você está ocupado atendendo." },
+    { "t": "statement", "title": "Cada projeto começa do zero. [[Nada de template.]]", "sub": "E depois da entrega a gente continua: suporte e manutenção fazem parte." },
+    { "t": "cta", "title": "Vamos tirar o seu projeto do [[papel]]?" }
+  ]
+}

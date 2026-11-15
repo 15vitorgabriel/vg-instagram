@@ -1,0 +1,79 @@
+# Post diário: renderiza os posts de hoje (posts/AAAA-MM-DD*.json), publica as imagens no GitHub Pages
+# (a API do Instagram só aceita mídia em URL pública) e posta na ordem do sufixo -1, -2, -3.
+name: Post do dia
+
+on:
+  schedule:
+    - cron: "0 15 * * *" # 12h em Brasília
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Data (AAAA-MM-DD). Vazio = hoje"
+        required: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency: post
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    environment: github-pages
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Posts pendentes de hoje
+        id: ids
+        run: |
+          day="${{ inputs.date }}"; day="${day:-$(TZ=America/Sao_Paulo date +%F)}"
+          ids=$(node -e '
+            const fs = require("fs"); const day = process.argv[1];
+            const done = fs.existsSync("published.json") ? JSON.parse(fs.readFileSync("published.json")) : {};
+            const ids = fs.readdirSync("posts").filter(f => f.startsWith(day)).map(f => f.slice(0, -5)).filter(id => !done[id]).sort();
+            console.log(ids.join(" "));' "$day")
+          echo "ids=$ids" >> "$GITHUB_OUTPUT"
+          echo "dia $day: ${ids:-nada pendente}"
+
+      - name: Renderizar
+        if: steps.ids.outputs.ids != ''
+        env:
+          BROWSER: google-chrome
+        run: |
+          command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+          for id in ${{ steps.ids.outputs.ids }}; do node render.mjs "$id"; done
+          find out -name '*.html' -delete
+
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.ids.outputs.ids != ''
+        with:
+          path: out
+
+      - uses: actions/deploy-pages@v4
+        if: steps.ids.outputs.ids != ''
+        id: pages
+
+      - name: Publicar no Instagram
+        if: steps.ids.outputs.ids != ''
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          MEDIA_BASE_URL: ${{ steps.pages.outputs.page_url }}
+        run: |
+          MEDIA_BASE_URL="${MEDIA_BASE_URL%/}"
+          for id in ${{ steps.ids.outputs.ids }}; do
+            # o CDN do Pages leva alguns segundos para servir o arquivo novo
+            f=$(ls out/$id | sort | head -1)
+            for i in $(seq 30); do curl -sfI "$MEDIA_BASE_URL/$id/$f" >/dev/null && break; sleep 5; done
+            node publish.mjs "$id"
+          done
+
+      - name: Salvar registro
+        if: always() && steps.ids.outputs.ids != ''
+        run: |
+          git config user.name "vg-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add published.json 2>/dev/null || true
+          git diff --cached --quiet || (git commit -m "Publicado: ${{ steps.ids.outputs.ids }}" && git push)
