@@ -1,0 +1,32 @@
+{
+  "caption": "Agenda no caderno, cliente na planilha, pagamento no bloco de notas. Funciona, até o dia em que não funciona mais.\n\nUm sistema sob medida junta tudo num lugar só e é desenvolvido do zero a partir da sua rotina. Você não adapta a empresa a um software pronto: o sistema se adapta a você, no computador e no celular.\n\nE quando a empresa cresce, ele cresce junto.\n\nOrçamento pelo WhatsApp, link na bio.\n\n#sistemas #gestao #automacao #vgtecnologia",
+  "slides": [
+    {
+      "t": "cover",
+      "title": "Sua empresa ainda roda no [[caderno]]?",
+      "sub": "Ou numa planilha que só você entende."
+    },
+    {
+      "t": "point",
+      "n": "1",
+      "title": "Feito para o seu processo",
+      "body": "O sistema é desenvolvido do zero a partir da sua rotina. Nada de adaptar a empresa a um software pronto."
+    },
+    {
+      "t": "point",
+      "n": "2",
+      "title": "No computador e no celular",
+      "body": "Agenda, clientes, planos e pagamentos num lugar só, acessível de onde você estiver."
+    },
+    {
+      "t": "point",
+      "n": "3",
+      "title": "Cresce junto com você",
+      "body": "Mudou o processo? Abriu outra unidade? O sistema evolui conforme a empresa cresce."
+    },
+    {
+      "t": "cta",
+      "title": "Vamos organizar a sua [[rotina]]?"
+    }
+  ]
+}

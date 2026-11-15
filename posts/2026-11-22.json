@@ -1,0 +1,39 @@
+{
+  "caption": "Por dentro de um projeto: o site da Randi Barbearia Visagista, barbearia premium em Curitiba.\n\nNa primeira tela, foto real do espaço e o botão de agendar à vista. Logo abaixo, os cortes, os planos e as avaliações de quem já é cliente. Quem chega decide ali mesmo e marca o horário online.\n\nCada detalhe foi pensado em cima de como a barbearia atende.\n\nQuer um site assim para a sua empresa? Orçamento pelo WhatsApp, link na bio.\n\n#criacaodesites #portfolio #barbearia #vgtecnologia",
+  "slides": [
+    {
+      "t": "cover",
+      "title": "Por dentro do site da [[Randi Barbearia]].",
+      "sub": "Barbearia premium em Curitiba."
+    },
+    {
+      "t": "shot",
+      "image": "randi-barbearia.jpg",
+      "domain": "randibarbearia.com",
+      "title": "A primeira tela já vende.",
+      "body": "Foto real do espaço, proposta clara e o botão de agendar no topo."
+    },
+    {
+      "t": "point",
+      "n": "1",
+      "title": "Cortes e planos",
+      "body": "Cada serviço explicado, e planos para quem é cliente de todo mês."
+    },
+    {
+      "t": "point",
+      "n": "2",
+      "title": "Avaliações de clientes",
+      "body": "Quem chega vê o que outros clientes falaram antes de marcar o primeiro horário."
+    },
+    {
+      "t": "point",
+      "n": "3",
+      "title": "Agendamento online",
+      "body": "O cliente escolhe o horário sem precisar mandar mensagem."
+    },
+    {
+      "t": "cta",
+      "title": "Sua empresa merece um site [[assim]]."
+    }
+  ]
+}

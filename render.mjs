@@ -49,7 +49,7 @@ const arrow = `<svg width="88" height="24" viewBox="0 0 88 24" fill="none" strok
 const slides = {
   cover: (s) => `
     <main class="cover">
-      <h1 style="font-size:${fit(s.title, [[34, 150], [56, 128], [80, 108], [999, 92]])}px">${rich(s.title)}</h1>
+      <h1 style="font-size:${fit(s.title, [[24, 150], [40, 128], [64, 108], [999, 92]])}px">${rich(s.title)}</h1>
       ${s.sub ? `<p class="sub">${rich(s.sub)}</p>` : ""}
       ${total > 1 ? `<div class="swipe"><span>arraste</span>${arrow}</div>` : ""}
     </main>`,
