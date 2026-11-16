@@ -5,9 +5,11 @@ name: Post do dia
 on:
   schedule:
     # Posts saem no horário do campo "hora" (padrão 12); o job roda nos horários usados
-    - cron: "0 12 * * *" # 9h em Brasília
-    - cron: "0 15 * * *" # 12h em Brasília
-    - cron: "0 21 * * *" # 18h em Brasília
+    # Três tentativas por horário: o cron do GitHub atrasa ou pula sob carga; a primeira que rodar publica,
+    # as outras entram na fila (concurrency) e não acham nada pendente
+    - cron: "0,20,40 12 * * *" # 9h em Brasília
+    - cron: "0,20,40 15 * * *" # 12h em Brasília
+    - cron: "0,20,40 21 * * *" # 18h em Brasília
   workflow_dispatch:
     inputs:
       date:
