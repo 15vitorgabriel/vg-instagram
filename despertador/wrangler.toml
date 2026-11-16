@@ -1,0 +1,8 @@
+name = "vg-instagram-despertador"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+workers_dev = false
+
+# 9h05, 12h05 e 18h05 em Brasília (UTC-3)
+[triggers]
+crons = ["5 12 * * *", "5 15 * * *", "5 21 * * *"]
