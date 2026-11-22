@@ -183,7 +183,9 @@ async function chrome(browser) {
   let id = 0; const wait = new Map();
   ws.onmessage = (e) => { const m = JSON.parse(e.data); if (m.id && wait.has(m.id)) { const [ok, fail] = wait.get(m.id); wait.delete(m.id); m.error ? fail(new Error(m.error.message)) : ok(m.result); } };
   const send = (method, params = {}, sessionId) => new Promise((ok, fail) => { const i = ++id; wait.set(i, [ok, fail]); ws.send(JSON.stringify({ id: i, method, params, sessionId })); });
-  const close = () => { try { ws.close(); } catch {} proc.kill("SIGKILL"); rmSync(dir, { recursive: true, force: true }); };
+  const close = () => { try { ws.close(); } catch {} proc.kill("SIGKILL");
+    // o Chrome ainda pode estar gravando o perfil quando morre: limpeza nunca derruba o render
+    setTimeout(() => { try { rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }); } catch {} }, 500).unref(); };
   return { send, close };
 }
 
