@@ -297,13 +297,21 @@ function falas(post) {
 // Gera a voz de cada cena com o voz.mjs (Gemini TTS). Sem GEMINI_API_KEY, ou se a API falhar, o reel sai só com
 // a trilha: a locução nunca impede a publicação.
 function narrate(post, out, ffmpeg) {
-  if (!process.env.GEMINI_API_KEY || post.voz === false) return post.slides.map(() => null);
+  if (!process.env.GEMINI_API_KEY || post.voz === false || process.env.REEL_SEM_VOZ) return post.slides.map(() => null);
   const here = path.dirname(new URL(import.meta.url).pathname);
   const textos = falas(post);
   const res = [];
   for (let i = 0; i < textos.length; i++) {
     const wav = path.join(out, `voz-${i + 1}.wav`), raw = `${wav}.f32`;
-    const r = spawnSync(process.execPath, [path.join(here, "voz.mjs"), post.locutor || "Alnilam", wav, textos[i]], { encoding: "utf8", timeout: 120000 });
+    // O plano grátis do Gemini limita pedidos por minuto: quando ele manda esperar, espera o tempo pedido e tenta de novo
+    let r;
+    for (let tentativa = 1; tentativa <= 4; tentativa++) {
+      r = spawnSync(process.execPath, [path.join(here, "voz.mjs"), post.locutor || "Alnilam", wav, textos[i]], { encoding: "utf8", timeout: 120000 });
+      if (r.status === 0 || !/RESOURCE_EXHAUSTED|"code":\s*429|retryDelay/.test(r.stderr || "")) break;
+      const espera = Math.min(90, Number((r.stderr.match(/"retryDelay":"(\d+)/) || [])[1] || 60) + 3);
+      console.log(`locução: limite por minuto do Gemini na cena ${i + 1}, esperando ${espera} s`);
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, espera * 1000);
+    }
     if (r.status !== 0) { console.warn(`locução falhou na cena ${i + 1}, o reel sai só com a trilha: ${(r.stderr || "").slice(-300)}`); return post.slides.map(() => null); }
     // corta o silêncio do começo e converte para float 44,1 kHz mono
     const c = spawnSync(ffmpeg, ["-y", "-loglevel", "error", "-i", wav, "-af", "silenceremove=start_periods=1:start_threshold=-45dB,loudnorm=I=-16:TP=-1.5",
