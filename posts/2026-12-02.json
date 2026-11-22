@@ -1,0 +1,37 @@
+{
+  "caption": "Um site entregue não é um site terminado.\n\nO preço muda, entra um serviço novo, o horário de fim de ano é diferente, a foto da fachada envelhece. Se ninguém mexe, em poucos meses o site está contando uma história que não é mais a sua empresa.\n\nPor isso a VG acompanha do planejamento à entrega, e depois dela: ajustes do dia a dia e evoluções conforme o seu negócio cresce.\n\nOrçamento pelo WhatsApp, link na bio.\n\n#suporte #manutencaodesites #criacaodesites #vgtecnologia",
+  "slides": [
+    {
+      "t": "cover",
+      "title": "Site entregue não é site [[terminado]].",
+      "sub": "Como funciona o suporte e manutenção da VG."
+    },
+    {
+      "t": "point",
+      "n": "1",
+      "title": "Ajustes do dia a dia",
+      "body": "Preço novo, serviço novo, horário de feriado. Você avisa e o site acompanha a empresa como ela está hoje."
+    },
+    {
+      "t": "point",
+      "n": "2",
+      "title": "Evolução",
+      "body": "Abriu outra unidade, quer agendamento online, precisa de uma página nova. O site cresce junto com o negócio."
+    },
+    {
+      "t": "point",
+      "n": "3",
+      "title": "Quem fez, cuida",
+      "body": "Do planejamento à entrega, e depois dela. Você não fica procurando alguém que entenda o que foi feito."
+    },
+    {
+      "t": "statement",
+      "title": "Site parado conta uma história que [[já mudou]].",
+      "sub": "E o cliente acredita no que está escrito."
+    },
+    {
+      "t": "cta",
+      "title": "Seu site ainda fala da sua empresa de [[hoje]]?"
+    }
+  ]
+}

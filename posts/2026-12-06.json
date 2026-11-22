@@ -1,0 +1,38 @@
+{
+  "caption": "Por dentro de um projeto da VG Tecnologia, do primeiro contato à entrega.\n\nA primeira conversa não é sobre cores. É sobre como o seu cliente chega até você, o que ele pergunta antes de fechar e onde ele desiste hoje. Daí sai a estrutura: o que vem primeiro na tela, qual é o botão principal, o que precisa estar à vista.\n\nSó depois vem o design, feito do zero, pensado primeiro para o celular. E depois da entrega a gente continua: suporte e manutenção fazem parte.\n\nOrçamento pelo WhatsApp, link na bio.\n\n#criacaodesites #bastidores #webdesign #vgtecnologia",
+  "slides": [
+    {
+      "t": "cover",
+      "title": "Como nasce um site [[da VG]].",
+      "sub": "Do primeiro contato à entrega, e depois dela."
+    },
+    {
+      "t": "point",
+      "n": "1",
+      "title": "Conversa antes do layout",
+      "body": "Como o seu cliente chega, o que pergunta antes de fechar e onde ele desiste hoje. Isso vem antes de qualquer cor."
+    },
+    {
+      "t": "point",
+      "n": "2",
+      "title": "Estrutura",
+      "body": "O que aparece primeiro, qual é o botão principal, o que precisa estar à vista. A página segue o caminho do cliente."
+    },
+    {
+      "t": "point",
+      "n": "3",
+      "title": "Design do zero",
+      "body": "Sem template. Cada tela desenhada para a sua marca, começando pelo celular, onde a maioria vai abrir."
+    },
+    {
+      "t": "point",
+      "n": "4",
+      "title": "Entrega e depois",
+      "body": "Site no ar, rápido e preparado para o Google. E a gente segue junto nos ajustes e nas evoluções."
+    },
+    {
+      "t": "cta",
+      "title": "O primeiro passo é uma [[conversa]]."
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "caption": "Em dezembro, muita gente procura presente, serviço e encomenda do jeito mais simples: digita no Google o que quer e \"perto de mim\". Quem aparece no mapa leva a visita.\n\nE quem não aparece, quase sempre, não aparece por detalhe. Uma categoria genérica, um endereço incompleto, fotos de três anos atrás. Coisas que o dono nem lembra que estão lá.\n\nTudo isso se ajusta no Perfil da Empresa no Google, sem pagar nada. Vale abrir o seu hoje e conferir.\n\nOrçamento pelo WhatsApp, link na bio.\n\n#google #buscalocal #perfildaempresa #vgtecnologia",
+  "slides": [
+    {
+      "t": "cover",
+      "title": "O cliente buscou \"perto de mim\" e [[não te achou]].",
+      "sub": "3 detalhes no Google que tiram a sua empresa do mapa."
+    },
+    {
+      "t": "point",
+      "n": "1",
+      "title": "Categoria genérica",
+      "body": "\"Loja\" ou \"serviços\" não diz nada ao Google. A categoria principal precisa ser exatamente o que você faz."
+    },
+    {
+      "t": "point",
+      "n": "2",
+      "title": "Endereço pela metade",
+      "body": "Sem número, sem bairro, pino no lugar errado. O Google mostra quem ele tem certeza de onde fica."
+    },
+    {
+      "t": "point",
+      "n": "3",
+      "title": "Fotos de anos atrás",
+      "body": "Fachada antiga, vitrine de outra época. Quem vê pelo celular quer saber como o lugar está hoje."
+    },
+    {
+      "t": "statement",
+      "title": "Quem aparece no mapa [[leva a visita]].",
+      "sub": "Tudo isso se ajusta no Perfil da Empresa no Google, sem custo."
+    },
+    {
+      "t": "cta",
+      "title": "Sua empresa aparece no [[mapa]]?"
+    }
+  ]
+}
