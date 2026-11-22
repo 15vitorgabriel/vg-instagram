@@ -1,0 +1,19 @@
+# Diagnóstico manual da conta do Instagram (só leitura): qual conta o token publica, seguidores e alcance dos posts.
+name: Diagnóstico do Instagram
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnostico:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ler conta e alcance
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+        run: node diagnostico.mjs
