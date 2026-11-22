@@ -303,7 +303,7 @@ function narrate(post, out, ffmpeg) {
   const res = [];
   for (let i = 0; i < textos.length; i++) {
     const wav = path.join(out, `voz-${i + 1}.wav`), raw = `${wav}.f32`;
-    const r = spawnSync(process.execPath, [path.join(here, "voz.mjs"), post.locutor || "Charon", wav, textos[i]], { encoding: "utf8", timeout: 120000 });
+    const r = spawnSync(process.execPath, [path.join(here, "voz.mjs"), post.locutor || "Alnilam", wav, textos[i]], { encoding: "utf8", timeout: 120000 });
     if (r.status !== 0) { console.warn(`locução falhou na cena ${i + 1}, o reel sai só com a trilha: ${(r.stderr || "").slice(-300)}`); return post.slides.map(() => null); }
     // corta o silêncio do começo e converte para float 44,1 kHz mono
     const c = spawnSync(ffmpeg, ["-y", "-loglevel", "error", "-i", wav, "-af", "silenceremove=start_periods=1:start_threshold=-45dB,loudnorm=I=-16:TP=-1.5",
