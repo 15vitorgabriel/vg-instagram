@@ -37,14 +37,15 @@ const fit = (s, sizes) => { const n = s.replace(/\[\[|\]\]/g, "").length; return
 
 const total = post.slides.length;
 // story: true → cada lâmina vira um story 1080x1920 (com margem para a interface do Instagram em cima e embaixo)
-const H = post.story ? 1920 : 1350;
+// reel: true → as mesmas lâminas viram um vídeo vertical 1080x1920 (out/ID/reel.mp4), com as margens que a interface do Reels cobre
+const H = post.story || post.reel ? 1920 : 1350;
 const asset = (f) => `../../assets/${f}`;
 
 // O logo já diz "VG": ao lado vai o @ do perfil, que ajuda quem vê o post compartilhado a achar a conta
 const footer = (i) => `
   <footer>
     <div class="brand"><img src="${asset("logo.png")}" alt=""><span>@_vgtecnologia</span></div>
-    <span class="count">${total > 1 && !post.story ? `${i + 1}<i>/</i>${total}` : "vgtecnologia.com"}</span>
+    <span class="count">${total > 1 && !post.story && !post.reel ? `${i + 1}<i>/</i>${total}` : "vgtecnologia.com"}</span>
   </footer>`;
 
 const arrow = `<svg width="88" height="24" viewBox="0 0 88 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h82M72 2l12 10-12 10"/></svg>`;
@@ -54,7 +55,7 @@ const slides = {
     <main class="cover">
       <h1 style="font-size:${fit(s.title, [[24, 150], [40, 128], [64, 108], [999, 92]])}px">${rich(s.title)}</h1>
       ${s.sub ? `<p class="sub">${rich(s.sub)}</p>` : ""}
-      ${total > 1 ? `<div class="swipe"><span>arraste</span>${arrow}</div>` : ""}
+      ${total > 1 && !post.reel ? `<div class="swipe"><span>arraste</span>${arrow}</div>` : ""}
     </main>`,
   point: (s) => `
     <main class="point">
@@ -141,6 +142,10 @@ mark { --mk: var(--y); background: linear-gradient(var(--mk), var(--mk)) no-repe
 
 body.story { padding: 260px 84px 330px; }
 body.story main { justify-content: center; padding-bottom: 0; }
+/* Reels: a interface cobre o topo, a legenda embaixo e os botões à direita; a capa no grid é cortada em 3:4 no centro */
+body.reel { padding: 250px 150px 400px 84px; }
+body.reel main { justify-content: center; padding-bottom: 0; }
+body.reel footer { position: absolute; left: 84px; right: 150px; bottom: 250px; }
 body.bf { padding-top: 132px; }
 body.story.bf { padding-top: 300px; }
 body.bf::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 46px;
@@ -182,7 +187,7 @@ post.slides.forEach((s, i) => {
   }
   const dark = s.t === "cta";
   const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><style>${css}</style></head>
-    <body class="${dark ? "on-y" : s.t === "count" ? "bf" : ""}${post.story ? " story" : ""}">${slides[s.t](s)}${footer(i)}</body></html>`;
+    <body class="${dark ? "on-y" : s.t === "count" ? "bf" : ""}${post.story ? " story" : ""}${post.reel ? " reel" : ""}">${slides[s.t](s)}${footer(i)}</body></html>`;
   const file = path.join(out, `${i + 1}.html`);
   writeFileSync(file, html);
   const png = path.join(out, `${i + 1}.png`);
@@ -192,3 +197,27 @@ post.slides.forEach((s, i) => {
   rmSync(png);
 });
 console.log(`${total} lâmina(s) em ${path.relative(process.cwd(), out)}`);
+
+// Reel: cada lâmina fica na tela o tempo de leitura do texto (2,5 a 6 s) e passa para a próxima com fade.
+// Trilha de áudio silenciosa: a API do Instagram espera vídeo com áudio AAC; a música fica para quem posta pelo app.
+if (post.reel) {
+  const words = (s) => [s.title, s.sub, s.body].filter(Boolean).join(" ").replace(/\[\[|\]\]/g, "").split(/\s+/).length;
+  const dur = post.slides.map((s) => Math.min(6, Math.max(2.5, 1.2 + words(s) / 3.2)));
+  dur[dur.length - 1] += 1; // o CTA fica um pouco mais
+  const X = 0.4; // duração do fade
+  const args = ["-y", "-loglevel", "error"];
+  dur.forEach((d, i) => args.push("-loop", "1", "-t", String(d + X), "-framerate", "30", "-i", path.join(out, `${i + 1}.jpg`)));
+  args.push("-f", "lavfi", "-t", String(dur.reduce((a, b) => a + b, 0) + X), "-i", "anullsrc=channel_layout=stereo:sample_rate=48000");
+  let chain = "", last = "[0:v]", t = 0;
+  for (let i = 1; i < dur.length; i++) {
+    t += dur[i - 1];
+    chain += `${last}[${i}:v]xfade=transition=fade:duration=${X}:offset=${t.toFixed(2)}[v${i}];`;
+    last = `[v${i}]`;
+  }
+  chain += `${last}format=yuv420p[v]`;
+  args.push("-filter_complex", chain, "-map", "[v]", "-map", `${dur.length}:a`, "-c:v", "libx264", "-profile:v", "high", "-preset", "medium",
+    "-crf", "20", "-r", "30", "-c:a", "aac", "-b:a", "128k", "-shortest", "-movflags", "+faststart", path.join(out, "reel.mp4"));
+  const v = spawnSync(process.env.FFMPEG || "ffmpeg", args);
+  if (v.status !== 0) throw new Error(`ffmpeg falhou no reel: ${v.stderr}`);
+  console.log(`reel em ${path.relative(process.cwd(), out)}/reel.mp4 (${dur.reduce((a, b) => a + b, 0).toFixed(1)} s)`);
+}

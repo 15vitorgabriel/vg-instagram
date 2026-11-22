@@ -1,11 +1,40 @@
 {
   "caption": "Amanhã é Black Friday. Hoje ainda dá tempo de fazer um teste que pouca empresa faz: comprar de você mesmo.\n\nPega o celular, desliga o Wi-Fi e faz o caminho que o seu cliente faz. Abre o site, procura a oferta, clica no botão do WhatsApp, manda uma mensagem tarde da noite e vê o que acontece.\n\nCada lugar onde você travou é um lugar onde um cliente vai desistir amanhã.\n\nSalva para fazer hoje à noite.\n\nOrçamento pelo WhatsApp, link na bio.\n\n#blackfriday #criacaodesites #vendasonline #vgtecnologia",
+  "reel": true,
   "slides": [
-    { "t": "cover", "title": "Antes de sexta, [[compre de você]] mesmo.", "sub": "Um teste rápido, só com o seu celular." },
-    { "t": "point", "n": "1", "title": "Desligue o Wi-Fi", "body": "Abra o seu site no 4G, como o cliente na rua. Veja quanto tempo leva até aparecer alguma coisa útil." },
-    { "t": "point", "n": "2", "title": "Ache a oferta", "body": "Sem rolar o perfil inteiro. Se você, que conhece a loja, demora para achar, o cliente desiste antes." },
-    { "t": "point", "n": "3", "title": "Clique em todo botão", "body": "Cada botão de WhatsApp, cada link da bio. Um número antigo ou um link quebrado custa venda em silêncio." },
-    { "t": "point", "n": "4", "title": "Mande mensagem às 23h", "body": "Use outro número e veja o que volta. Silêncio até de manhã é o cliente indo para o concorrente." },
-    { "t": "cta", "title": "Travou em algum [[passo]]?", "sub": "A gente resolve.\nO link está na bio." }
+    {
+      "t": "cover",
+      "title": "Antes de sexta, [[compre de você]] mesmo.",
+      "sub": "Um teste rápido, só com o seu celular."
+    },
+    {
+      "t": "point",
+      "n": "1",
+      "title": "Desligue o Wi-Fi",
+      "body": "Abra o seu site no 4G, como o cliente na rua. Veja quanto tempo leva até aparecer alguma coisa útil."
+    },
+    {
+      "t": "point",
+      "n": "2",
+      "title": "Ache a oferta",
+      "body": "Sem rolar o perfil inteiro. Se você, que conhece a loja, demora para achar, o cliente desiste antes."
+    },
+    {
+      "t": "point",
+      "n": "3",
+      "title": "Clique em todo botão",
+      "body": "Cada botão de WhatsApp, cada link da bio. Um número antigo ou um link quebrado custa venda em silêncio."
+    },
+    {
+      "t": "point",
+      "n": "4",
+      "title": "Mande mensagem às 23h",
+      "body": "Use outro número e veja o que volta. Silêncio até de manhã é o cliente indo para o concorrente."
+    },
+    {
+      "t": "cta",
+      "title": "Travou em algum [[passo]]?",
+      "sub": "A gente resolve.\nO link está na bio."
+    }
   ]
 }

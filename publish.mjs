@@ -34,7 +34,10 @@ if (!dry && !(IG_USER_ID && IG_ACCESS_TOKEN && MEDIA_BASE_URL)) throw new Error(
 const post = JSON.parse(readFileSync(path.join(here, "posts", `${date}.json`), "utf8"));
 const caption = post.caption;
 const images = (post.slides ?? []).map((_, i) => `${MEDIA_BASE_URL}/${date}/${i + 1}.jpg`);
-const video = post.video && `${MEDIA_BASE_URL}/${date}/reel.mp4`;
+// Reel gerado das lâminas (reel: true) ou vídeo pronto (video): os dois ficam em out/ID/reel.mp4
+const video = (post.video || post.reel) && `${MEDIA_BASE_URL}/${date}/reel.mp4`;
+// No reel gerado, a capa é a primeira lâmina
+const cover = post.reel && `${MEDIA_BASE_URL}/${date}/1.jpg`;
 
 // Registro do que já saiu: se o workflow rodar duas vezes no mesmo dia, o segundo não posta de novo
 const logFile = path.join(here, "published.json");
@@ -85,7 +88,7 @@ let creation;
 if (video) {
   // thumb_offset (ms) escolhe o quadro da capa; vídeo demora mais para processar, ready() espera
   creation = (await call(`${IG_USER_ID}/media`, { media_type: "REELS", video_url: video, caption,
-    share_to_feed: "true", ...(post.thumb_offset ? { thumb_offset: String(post.thumb_offset) } : {}) })).id;
+    share_to_feed: "true", ...(cover ? { cover_url: cover } : {}), ...(post.thumb_offset ? { thumb_offset: String(post.thumb_offset) } : {}) })).id;
 } else if (images.length === 1) {
   creation = (await call(`${IG_USER_ID}/media`, { image_url: images[0], caption })).id;
 } else {
