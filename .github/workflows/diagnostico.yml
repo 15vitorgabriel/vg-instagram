@@ -12,6 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Chaves cadastradas (só diz se existem, nunca o valor)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          [ -n "$GEMINI_API_KEY" ] && echo "GEMINI_API_KEY: cadastrada" || echo "GEMINI_API_KEY: NÃO cadastrada"
+
       - name: Ler conta e alcance
         env:
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
