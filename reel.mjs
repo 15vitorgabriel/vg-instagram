@@ -5,7 +5,7 @@
 // pausadas no instante exato e a tela é capturada, então o resultado é idêntico em qualquer máquina.
 // Áudio: trilha eletrônica sintetizada aqui mesmo (bumbo, chimbal, baixo, pad, arpejo e "whoosh" em cada
 // transição). Nada de música de terceiros, sem risco de direito autoral.
-import { writeFileSync, mkdirSync, rmSync } from "node:fs";
+import { writeFileSync, readFileSync, rmSync } from "node:fs";
 import { spawn, spawnSync } from "node:child_process";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -37,8 +37,8 @@ function animText(s, t0, step = 0.075) {
 const fit = (s, sizes) => { const n = plain(s).length; return sizes.find(([max]) => n <= max)?.[1] ?? sizes.at(-1)[1]; };
 
 // Duração de cada cena: tempo de leitura, com folga para a animação de entrada
-function timeline(slides) {
-  const dur = slides.map((s) => Math.min(7, Math.max(3.2, 1.8 + words([s.title, s.sub, s.body].filter(Boolean).join(" ")) / 3)));
+function timeline(slides, minDur = []) {
+  const dur = slides.map((s, i) => Math.max(minDur[i] ?? 0, Math.min(7, Math.max(3.2, 1.8 + words([s.title, s.sub, s.body].filter(Boolean).join(" ")) / 3))));
   dur[dur.length - 1] += 1.5; // CTA fica mais um pouco
   const start = [];
   dur.reduce((t, d, i) => (start[i] = t, t + d), 0);
@@ -97,10 +97,6 @@ body { color: var(--ink); font-family: "Inter Tight", sans-serif; -webkit-font-s
   background-size: 120px 120px; animation: drift ${tl.total.toFixed(2)}s linear 0s both;
   -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 45%, #000 20%, transparent 75%); }
 @keyframes drift { from { transform: translate(0,0) } to { transform: translate(-120px, -${Math.round(tl.total * 18)}px) } }
-.glow { position: absolute; width: 1300px; height: 1300px; border-radius: 50%; left: -300px; top: 200px;
-  background: radial-gradient(circle, rgba(255,204,0,.16), rgba(255,204,0,0) 62%); animation: roam ${tl.total.toFixed(2)}s ease-in-out 0s both; }
-@keyframes roam { 0% { transform: translate(0,0) scale(1) } 30% { transform: translate(380px,-260px) scale(1.15) } 60% { transform: translate(120px,420px) scale(.95) }
-  100% { transform: translate(420px,80px) scale(1.1) } }
 .grain { position: absolute; inset: 0; opacity: .06; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>`)}"); }
 
 /* Barra de progresso no estilo stories: mostra que tem mais coisa vindo e segura até o fim */
@@ -146,7 +142,7 @@ mark { color: inherit; background: linear-gradient(var(--y), var(--y)) no-repeat
 
 .cta { color: var(--on-y); }
 .cta .wipe { position: absolute; inset: 0; background: var(--y); z-index: -1; animation: wipe .55s cubic-bezier(.7,0,.2,1) both; }
-@keyframes wipe { from { clip-path: circle(0% at 50% 100%) } to { clip-path: circle(150% at 50% 100%) } }
+@keyframes wipe { from { clip-path: inset(100% 0 0 0) } to { clip-path: inset(0 0 0 0) } }
 .cta mark { background-image: linear-gradient(var(--on-y), var(--on-y)); }
 @keyframes paintcta { to { background-size: 100% calc(100% - .12em); color: var(--y) } }
 .cta mark { animation-name: paintcta; }
@@ -156,7 +152,7 @@ mark { color: inherit; background: linear-gradient(var(--y), var(--y)) no-repeat
 @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(18,18,18,.35) } 50% { box-shadow: 0 0 0 22px rgba(18,18,18,0) } }
 .cta .hint { font-size: 34px; font-weight: 600; color: #3d3300; margin-top: 30px; animation: rise .6s var(--ease) both; }
 </style></head><body>
-<div class="glow"></div><div class="grid"></div><div class="grain"></div>
+<div class="grid"></div><div class="grain"></div>
 <div class="bar dark">${segs}</div>
 ${post.slides.map((s, i) => scene(s, i, tl.start[i], tl.dur[i], i === n - 1, tl.total)).join("\n")}
 <footer><div class="brand"><img src="../../assets/logo.png" alt=""><span>@_vgtecnologia</span></div><span>vgtecnologia.com</span></footer>
@@ -190,7 +186,7 @@ async function chrome(browser) {
 }
 
 // ---------- Trilha sintetizada ----------
-function soundtrack(total, cuts, seed) {
+export function soundtrack(total, cuts, seed, voices = []) {
   const SR = 44100, N = Math.ceil(total * SR);
   const L = new Float32Array(N), R = new Float32Array(N);
   let s = seed >>> 0 || 1; const rnd = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296) * 2 - 1;
@@ -256,11 +252,21 @@ function soundtrack(total, cuts, seed) {
     const ic = Math.floor(c * SR);
     for (let j = 0; j < SR * 0.4; j++) { const t = j / SR; add(ic + j, Math.sin(2 * Math.PI * (40 + 60 * Math.exp(-t * 20)) * t) * Math.exp(-t * 6) * 0.35); }
   }
+  // locução: entra por cima, e a música abaixa enquanto alguém fala (com subida e descida suaves)
+  const V = new Float32Array(N), talk = new Float32Array(N);
+  for (const { at, pcm } of voices) {
+    const i0 = Math.floor(at * SR);
+    for (let j = 0; j < pcm.length && i0 + j < N; j++) { V[i0 + j] += pcm[j]; talk[i0 + j] = 1; }
+  }
+  const hasVoice = voices.length > 0;
+  let env = 0;
   // master: fade in/out, saturação suave, normalização
   let peak = 0;
   for (let i = 0; i < N; i++) {
     const t = i / SR, g = Math.min(1, t / 0.25) * Math.min(1, (total - t) / 1.8);
-    L[i] = Math.tanh(L[i] * 1.3) * g; R[i] = Math.tanh(R[i] * 1.3) * g;
+    env += (talk[i] - env) * (talk[i] > env ? 0.0015 : 0.00012);
+    const m = hasVoice ? 0.42 * (1 - 0.6 * env) : 1;
+    L[i] = Math.tanh((L[i] * m + V[i]) * 1.3) * g; R[i] = Math.tanh((R[i] * m + V[i]) * 1.3) * g;
     peak = Math.max(peak, Math.abs(L[i]), Math.abs(R[i]));
   }
   const norm = 0.89 / (peak || 1);
@@ -275,14 +281,52 @@ function soundtrack(total, cuts, seed) {
   return buf;
 }
 
+// ---------- Locução ----------
+// O que o locutor fala em cada cena: o texto da lâmina, do jeito que se diz em voz alta
+const numeros = ["zero", "Um", "Dois", "Três", "Quatro", "Cinco", "Seis", "Sete"];
+function falas(post) {
+  return post.slides.map((s) => {
+    const t = (x = "") => plain(x).replace(/\n/g, " ").trim();
+    const fim = (x) => (/[.!?]$/.test(x) ? x : x + ".");
+    if (s.t === "point") return `${numeros[Number(s.n)] ?? s.n}. ${fim(t(s.title))} ${t(s.body)}`;
+    if (s.t === "cta") return `${fim(t(s.title))} Chama no WhatsApp. O link está na bio.`;
+    return [fim(t(s.title)), s.sub ? t(s.sub) : ""].join(" ").trim();
+  });
+}
+
+// Gera a voz de cada cena com o voz.mjs (Gemini TTS). Sem GEMINI_API_KEY, ou se a API falhar, o reel sai só com
+// a trilha: a locução nunca impede a publicação.
+function narrate(post, out, ffmpeg) {
+  if (!process.env.GEMINI_API_KEY || post.voz === false) return post.slides.map(() => null);
+  const here = path.dirname(new URL(import.meta.url).pathname);
+  const textos = falas(post);
+  const res = [];
+  for (let i = 0; i < textos.length; i++) {
+    const wav = path.join(out, `voz-${i + 1}.wav`), raw = `${wav}.f32`;
+    const r = spawnSync(process.execPath, [path.join(here, "voz.mjs"), post.locutor || "Charon", wav, textos[i]], { encoding: "utf8", timeout: 120000 });
+    if (r.status !== 0) { console.warn(`locução falhou na cena ${i + 1}, o reel sai só com a trilha: ${(r.stderr || "").slice(-300)}`); return post.slides.map(() => null); }
+    // corta o silêncio do começo e converte para float 44,1 kHz mono
+    const c = spawnSync(ffmpeg, ["-y", "-loglevel", "error", "-i", wav, "-af", "silenceremove=start_periods=1:start_threshold=-45dB,loudnorm=I=-16:TP=-1.5",
+      "-ar", "44100", "-ac", "1", "-f", "f32le", raw]);
+    if (c.status !== 0) throw new Error(`ffmpeg na locução: ${c.stderr}`);
+    const b = readFileSync(raw);
+    res.push(new Float32Array(b.buffer, b.byteOffset, b.length / 4).slice());
+    rmSync(raw); rmSync(wav);
+  }
+  return res;
+}
+
 export async function buildReel(post, out, { browser, ffmpeg = "ffmpeg", id = "" } = {}) {
   if (post.slides.some((s) => s.t === "shot")) throw new Error("reel não aceita lâmina shot");
-  const tl = timeline(post.slides);
+  const voice = narrate(post, out, ffmpeg);
+  const tl = timeline(post.slides, voice.map((v) => v && v.length / 44100 + 0.9));
   const html = path.join(out, "reel.html");
   writeFileSync(html, page(post, tl));
   const seed = [...id].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
   const wav = path.join(out, "reel.wav");
-  writeFileSync(wav, soundtrack(tl.total, tl.start.slice(1), seed));
+  const voices = voice.map((pcm, i) => pcm && { at: tl.start[i] + 0.3, pcm }).filter(Boolean);
+  writeFileSync(wav, soundtrack(tl.total, tl.start.slice(1), seed, voices));
+  if (voices.length) console.log(`locução: ${voices.length} trechos`);
 
   const { send, close } = await chrome(browser);
   try {

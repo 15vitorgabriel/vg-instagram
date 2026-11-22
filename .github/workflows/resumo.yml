@@ -40,6 +40,8 @@ jobs:
         if: steps.novos.outputs.ids != ''
         env:
           BROWSER: google-chrome
+          # locução dos reels (opcional): sem a chave, o reel sai só com a trilha
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
           mkdir -p previa
