@@ -34,6 +34,10 @@ jobs:
     environment: github-pages
     steps:
       - uses: actions/checkout@v4
+      # reel.mjs usa o WebSocket nativo do Node 22 para controlar o Chrome
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
       - name: Posts pendentes de hoje
         id: ids

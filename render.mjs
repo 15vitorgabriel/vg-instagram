@@ -198,26 +198,9 @@ post.slides.forEach((s, i) => {
 });
 console.log(`${total} lâmina(s) em ${path.relative(process.cwd(), out)}`);
 
-// Reel: cada lâmina fica na tela o tempo de leitura do texto (2,5 a 6 s) e passa para a próxima com fade.
-// Trilha de áudio silenciosa: a API do Instagram espera vídeo com áudio AAC; a música fica para quem posta pelo app.
+// Reel: vídeo animado (reel.mjs) com as mesmas lâminas; a primeira lâmina estática (1.jpg) vira a capa
 if (post.reel) {
-  const words = (s) => [s.title, s.sub, s.body].filter(Boolean).join(" ").replace(/\[\[|\]\]/g, "").split(/\s+/).length;
-  const dur = post.slides.map((s) => Math.min(6, Math.max(2.5, 1.2 + words(s) / 3.2)));
-  dur[dur.length - 1] += 1; // o CTA fica um pouco mais
-  const X = 0.4; // duração do fade
-  const args = ["-y", "-loglevel", "error"];
-  dur.forEach((d, i) => args.push("-loop", "1", "-t", String(d + X), "-framerate", "30", "-i", path.join(out, `${i + 1}.jpg`)));
-  args.push("-f", "lavfi", "-t", String(dur.reduce((a, b) => a + b, 0) + X), "-i", "anullsrc=channel_layout=stereo:sample_rate=48000");
-  let chain = "", last = "[0:v]", t = 0;
-  for (let i = 1; i < dur.length; i++) {
-    t += dur[i - 1];
-    chain += `${last}[${i}:v]xfade=transition=fade:duration=${X}:offset=${t.toFixed(2)}[v${i}];`;
-    last = `[v${i}]`;
-  }
-  chain += `${last}format=yuv420p[v]`;
-  args.push("-filter_complex", chain, "-map", "[v]", "-map", `${dur.length}:a`, "-c:v", "libx264", "-profile:v", "high", "-preset", "medium",
-    "-crf", "20", "-r", "30", "-c:a", "aac", "-b:a", "128k", "-shortest", "-movflags", "+faststart", path.join(out, "reel.mp4"));
-  const v = spawnSync(process.env.FFMPEG || "ffmpeg", args);
-  if (v.status !== 0) throw new Error(`ffmpeg falhou no reel: ${v.stderr}`);
-  console.log(`reel em ${path.relative(process.cwd(), out)}/reel.mp4 (${dur.reduce((a, b) => a + b, 0).toFixed(1)} s)`);
+  const { buildReel } = await import("./reel.mjs");
+  const secs = await buildReel(post, out, { browser: BROWSER, ffmpeg: process.env.FFMPEG || "ffmpeg", id: date });
+  console.log(`reel em ${path.relative(process.cwd(), out)}/reel.mp4 (${secs.toFixed(1)} s)`);
 }

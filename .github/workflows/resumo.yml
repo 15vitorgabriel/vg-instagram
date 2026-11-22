@@ -22,6 +22,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      # reel.mjs usa o WebSocket nativo do Node 22 para controlar o Chrome
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
       - name: Posts novos
         id: novos
@@ -42,7 +46,7 @@ jobs:
           for id in ${{ steps.novos.outputs.ids }}; do
             node render.mjs "$id"
             if [ -f "out/$id/reel.mp4" ]; then
-              ffmpeg -y -loglevel error -ss 1 -i "out/$id/reel.mp4" -frames:v 1 -vf scale=432:768 "previa/$id.jpg"
+              ffmpeg -y -loglevel error -ss 3 -i "out/$id/reel.mp4" -frames:v 1 -vf scale=432:768 "previa/$id.jpg"
             else
               n=$(ls out/$id/*.jpg | wc -l)
               ffmpeg -y -loglevel error -i "out/$id/%d.jpg" -vf "scale=-2:540,tile=${n}x1:padding=10:color=0x2a2a2a" -frames:v 1 "previa/$id.jpg"

@@ -45,7 +45,7 @@ Este guia é a fonte da verdade para quem escreve os posts (a rotina semanal do 
 | Sáb | imagem única | dica rápida |
 | Dom | carrossel | portfólio por dentro (alternar Estação Fitness, Randi, Hudema) |
 
-**Reels (alcance para quem ainda não segue)**: a conta começou do zero, e post de feed só chega em quem segue; Reels chega em quem não segue. Toda semana, o carrossel de **segunda** e o de **quinta** saem como reel: mesmo JSON de carrossel, com `"reel": true`. O render gera `out/ID/reel.mp4` (1080x1920, cada lâmina no tempo de leitura, com fade) e a primeira lâmina vira a capa. Num reel, capa com título curto e forte (é o que segura o dedo nos primeiros segundos), 3 a 5 lâminas de conteúdo com texto enxuto, CTA no fim. Sem lâmina `shot` em reel.
+**Reels (alcance para quem ainda não segue)**: a conta começou do zero, e post de feed só chega em quem segue; Reels chega em quem não segue. Toda semana, o carrossel de **segunda** e o de **quinta** saem como reel: mesmo JSON de carrossel, com `"reel": true`. O render (`reel.mjs`) gera `out/ID/reel.mp4` animado: palavras entrando uma a uma, marca-texto pintando, número com impacto, barra de progresso, fundo em movimento, transições, CTA com fundo amarelo e botão de WhatsApp, e trilha eletrônica própria sincronizada com as trocas de cena. A primeira lâmina estática vira a capa. Num reel, capa com título curto e forte (é o que segura o dedo nos primeiros segundos), 3 a 5 lâminas de conteúdo com texto enxuto, CTA no fim. Sem lâmina `shot` em reel.
 
 Varie os temas: não repita o ângulo de nenhum post das últimas 4 semanas (veja `posts/`).
 
