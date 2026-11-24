@@ -19,7 +19,7 @@ const i = {
 
 await rodar({
   id: "2026-11-28-2",
-  minimo: [5.5, 8.5, 9, 8.5, 7.5, 9.5, 10, 9],
+  minimo: [5.5, 8.5, 9, 8.5, 7.5, 9.5, 10, 10],
   capa: 3.2,
   montar: ({ A, S, start, dur, total, cena, legenda, palavras }) => {
     const pts = (n, cx, cy, at) => Array.from({ length: n }, (_, k) => { const a = (k * 137.5) % 360, r = 240 + (k * 53) % 420; return `<i class="pt" style="left:${cx}px;top:${cy}px;--x:${(Math.cos(a) * r).toFixed(0)}px;--y:${(Math.sin(a) * r).toFixed(0)}px;animation:${A("converge", 1.0, at + (k % 10) * 0.025, "cubic-bezier(.6,0,.2,1)")}"></i>`; }).join("");
@@ -98,8 +98,10 @@ await rodar({
     const t7 = start[7];
     const c7 = cena(7, `${pts(70, 540, 560, t7 + 0.1)}
       <img class="logo fim" src="../../assets/logo.png" style="animation:${A("logoin", 0.9, t7 + 0.8, "cubic-bezier(.2,1.3,.4,1)")}">
-      <div class="fh">${palavras("Vamos conversar sobre *o seu projeto?*", t7 + 1.4, 0.08)}</div>
-      <div class="ctaw" style="animation:${A("rise", 0.7, t7 + 2.6)}"><div class="walinha"><span class="walogo">${ic.whatsapp}</span><span>Fale com a gente<br>no <b>WhatsApp</b></span></div>
+      <div class="tec fim" style="animation:${A("rise", 0.7, t7 + 1.2)}">TECNOLOGIA</div>
+      <div class="fh">${palavras("Vamos conversar sobre *o seu projeto?*", t7 + 1.6, 0.08)}</div>
+      <div class="slogan" style="animation:${A("rise", 0.9, t7 + dur[7] - 3.4)}">Sua empresa no <b>próximo nível.</b></div>
+      <div class="ctaw" style="animation:${A("rise", 0.7, t7 + 0.9)}"><div class="walinha"><span class="walogo">${ic.whatsapp}</span><span>Fale com a gente<br>no <b>WhatsApp</b></span></div>
         <div class="bio" style="animation:${A("rise", 0.6, t7 + 3.4)}"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>O link está na bio</div></div>`);
 
     const css = `
@@ -109,7 +111,10 @@ await rodar({
 .pt { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: var(--y); opacity: 0; }
 @keyframes converge { 0% { opacity: 0; transform: translate(var(--x), var(--y)) } 30% { opacity: .9 } 100% { opacity: 0; transform: translate(0, 0) scale(.3) } }
 .logo { position: absolute; left: 50%; top: 440px; width: 440px; margin-left: -220px; opacity: 0; filter: drop-shadow(0 18px 40px rgba(255,204,0,.25)); }
-.logo.fim { top: 380px; width: 360px; margin-left: -180px; }
+.logo.fim { top: 300px; width: 340px; margin-left: -170px; }
+.tec.fim { top: 600px; font-size: 30px; }
+.slogan { position: absolute; left: 90px; right: 150px; top: 1330px; text-align: center; font-size: 46px; font-weight: 600; letter-spacing: -.01em; color: #e9e9e9; opacity: 0; }
+.slogan b { color: var(--y); font-weight: 800; }
 @keyframes logoin { from { opacity: 0; transform: scale(.4) rotateY(70deg) } to { opacity: 1; transform: none } }
 .tec { position: absolute; left: 0; right: 0; top: 860px; text-align: center; font-size: 34px; letter-spacing: .55em; color: var(--y); font-weight: 600; opacity: 0; }
 
@@ -165,8 +170,8 @@ await rodar({
 .ref { display: flex; align-items: center; justify-content: center; gap: 22px; margin-top: 56px; font-size: 34px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #ffcc00; opacity: 0; }
 .ref i { width: 60px; height: 2px; background: #ffcc00; opacity: .6; }
 
-.fh { position: absolute; left: 90px; right: 150px; top: 860px; text-align: center; font-size: 80px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
-.ctaw { position: absolute; left: 90px; right: 150px; top: 1170px; display: flex; flex-direction: column; align-items: center; gap: 34px; opacity: 0; }
+.fh { position: absolute; left: 90px; right: 150px; top: 740px; text-align: center; font-size: 80px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+.ctaw { position: absolute; left: 90px; right: 150px; top: 1030px; display: flex; flex-direction: column; align-items: center; gap: 34px; opacity: 0; }
 .walinha { display: flex; align-items: center; gap: 26px; font-size: 46px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: #f2f2f2; }
 .walinha b { color: #25d366; font-weight: 800; }
 .walogo { width: 104px; height: 104px; border-radius: 50%; background: #25d366; color: #fff; display: grid; place-items: center; flex: none; box-shadow: 0 14px 36px rgba(37,211,102,.3); }
