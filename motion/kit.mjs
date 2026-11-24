@@ -185,8 +185,10 @@ export const css = `
 .saf .tools svg { width: 32px; height: 32px; } .saf .tools .off { color: #c7c7cc; }
 .timer { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 500px; background: rgba(20,20,20,.94); color: #fff; border-radius: 34px; padding: 22px 40px 24px;
   text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,.35); white-space: nowrap; z-index: 26; }
-.timer .num { font-size: 92px; font-weight: 800; color: #ffcc00; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
-.timer .num::after { content: counter(n) "," counter(d) " s"; counter-reset: n var(--n) d var(--d); }
+/* o contador é zerado no próprio .num (onde --n/--d são animados); o ::after só mostra. (Se o reset ficasse no ::after, ele
+   não herdaria --n/--d, que são inherits:false, e o número travava em 0,0.) */
+.timer .num { font-size: 92px; font-weight: 800; color: #ffcc00; font-variant-numeric: tabular-nums; letter-spacing: -.02em; counter-reset: n var(--n) d var(--d); }
+.timer .num::after { content: counter(n) "," counter(d) " s"; }
 .timer small { display: block; font-size: 22px; font-weight: 600; opacity: .75; margin-top: -4px; }
 
 /* Instagram (perfil de loja) */
