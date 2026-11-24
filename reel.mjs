@@ -239,18 +239,18 @@ export function soundtrack(total, cuts, seed, voices = []) {
       for (let j = 0; j < SR * 0.18; j++) { const t = j / SR; add(ia + j, (Math.sin(2 * Math.PI * f * t) + 0.3 * Math.sin(4 * Math.PI * f * t)) * Math.exp(-t * 22) * 0.05, pan); }
     }
   }
-  // whoosh em cada troca de cena: ruído com filtro abrindo, crescendo até o corte
+  // troca de cena: só som limpo, sem ruído (o "whoosh" de ruído soava como chiado no celular).
+  // Um sino suave com duas notas do acorde e uma batida grave curta e baixa no corte.
   for (const c of cuts) {
-    let lp = 0;
-    const len = 0.55, i0 = Math.floor((c - len * 0.75) * SR);
-    for (let j = 0; j < SR * len; j++) {
-      const p = j / (SR * len), env = p < 0.75 ? (p / 0.75) ** 2 : Math.exp(-(p - 0.75) * 18);
-      lp += (0.02 + 0.5 * p) * (rnd() - lp);
-      add(i0 + j, lp * env * 0.22, Math.sin(p * Math.PI) * 0.4 - 0.2);
+    const ic = Math.floor(c * SR), acorde = chord(c);
+    for (const [k, atraso, pan] of [[0, 0, -0.25], [2, 0.07, 0.25]]) {
+      const f = hz(acorde[k] + 24), i0 = ic + Math.floor(atraso * SR);
+      for (let j = 0; j < SR * 0.9; j++) {
+        const t = j / SR, ataque = Math.min(1, t / 0.004);
+        add(i0 + j, (Math.sin(2 * Math.PI * f * t) + 0.25 * Math.sin(2 * Math.PI * f * 2 * t)) * ataque * Math.exp(-t * 5) * 0.07, pan);
+      }
     }
-    // batida grave curta no corte
-    const ic = Math.floor(c * SR);
-    for (let j = 0; j < SR * 0.4; j++) { const t = j / SR; add(ic + j, Math.sin(2 * Math.PI * (40 + 60 * Math.exp(-t * 20)) * t) * Math.exp(-t * 6) * 0.35); }
+    for (let j = 0; j < SR * 0.35; j++) { const t = j / SR, ataque = Math.min(1, t / 0.003); add(ic + j, Math.sin(2 * Math.PI * (45 + 40 * Math.exp(-t * 25)) * t) * ataque * Math.exp(-t * 9) * 0.18); }
   }
   // locução: entra por cima, e a música abaixa enquanto alguém fala (com subida e descida suaves)
   const V = new Float32Array(N), talk = new Float32Array(N);
@@ -318,7 +318,12 @@ function narrate(post, out, ffmpeg) {
       "-ar", "44100", "-ac", "1", "-f", "f32le", raw]);
     if (c.status !== 0) throw new Error(`ffmpeg na locução: ${c.stderr}`);
     const b = readFileSync(raw);
-    res.push(new Float32Array(b.buffer, b.byteOffset, b.length / 4).slice());
+    const v = new Float32Array(b.buffer, b.byteOffset, b.length / 4).slice();
+    // fade de 10 ms na entrada e 120 ms na saída: sem estalo quando a fala começa ou termina
+    const fi = Math.min(v.length, 441), fo = Math.min(v.length, 5292);
+    for (let k = 0; k < fi; k++) v[k] *= k / fi;
+    for (let k = 0; k < fo; k++) v[v.length - 1 - k] *= k / fo;
+    res.push(v);
     rmSync(raw); rmSync(wav);
   }
   return res;
