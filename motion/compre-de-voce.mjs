@@ -86,7 +86,7 @@ const t2 = screen(1, `
       <span class="num" style="animation:${anim("count", Math.max(2, dur[1] - 2.8), S(1, 2.2), "linear")}"></span><small>s esperando</small></div>
   </div>`);
 
-const tiles = Array.from({ length: 36 }, (_, k) => `<i style="--h:${(k * 47) % 360}"${k === 31 ? ' class="of"' : ""}>${k === 31 ? "<b>OFERTA</b>" : ""}</i>`).join("");
+const tiles = Array.from({ length: 66 }, (_, k) => `<i style="--h:${(k * 47) % 360}"${k === 61 ? ' class="of"' : ""}>${k === 61 ? "<b>OFERTA</b>" : ""}</i>`).join("");
 const t3 = screen(2, `
   <div class="ig">
     <div class="igtop"><div class="av"></div><div><b>sualoja</b><span>Moda · Curitiba</span></div></div>
@@ -227,10 +227,12 @@ body { font-family: "Inter Tight", sans-serif; color: #f2f2f2; -webkit-font-smoo
 .grid i { aspect-ratio: 1; background: hsl(var(--h) 18% 80%); position: relative; }
 .grid i.of { background: #141414; display: grid; place-items: center; }
 .grid i.of b { background: var(--y); color: #141414; font-size: 22px; font-weight: 900; padding: 6px 10px; border-radius: 6px; }
-@keyframes scrollgrid { from { transform: translateY(0) } to { transform: translateY(-1380px) } }
+@keyframes scrollgrid { from { transform: translateY(0) } to { transform: translateY(-1500px) } }
+.ig::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 84px; background: #fff; z-index: 3; }
+.igtop { z-index: 3; }
 .swipe { position: absolute; left: 50%; top: 700px; width: 70px; height: 70px; margin-left: -35px; border-radius: 50%; background: rgba(0,0,0,.28); opacity: 0; }
 @keyframes swipe { 0% { opacity: 0; transform: translateY(120px) } 20% { opacity: .7 } 100% { opacity: 0; transform: translateY(-260px) } }
-.giveup { position: absolute; left: 40px; right: 40px; top: 430px; padding: 30px; border-radius: 30px; background: rgba(20,20,20,.92); color: #fff; font-size: 34px; font-weight: 800; text-align: center; opacity: 0; }
+.giveup { position: absolute; z-index: 5; left: 40px; right: 40px; top: 430px; padding: 30px; border-radius: 30px; background: rgba(20,20,20,.92); color: #fff; font-size: 34px; font-weight: 800; text-align: center; opacity: 0; }
 /* 4: link da bio */
 .bio { position: absolute; inset: 0; padding: 110px 34px 0; background: linear-gradient(180deg, #faf6e6, #fff 40%); text-align: center; }
 .bio .nm { display: block; font-size: 30px; margin-bottom: 30px; }
