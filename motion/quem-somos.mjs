@@ -159,7 +159,6 @@ await rodar({
 .et b { display: block; font-size: 50px; font-weight: 800; letter-spacing: -.02em; }
 .et small { display: block; font-size: 30px; color: #a5a5a5; margin-top: 4px; }
 
-.cverso { background: radial-gradient(80% 50% at 50% 45%, rgba(255,204,0,.05), transparent 70%); }
 .verso { position: absolute; left: 110px; right: 170px; top: 380px; text-align: center; }
 .aspas { display: block; font-family: "Playfair", serif; font-style: italic; font-size: 260px; line-height: .6; color: #ffcc00; opacity: 0; height: 130px; }
 .verso p { font-family: "Playfair", serif; font-style: italic; font-weight: 500; font-size: 72px; line-height: 1.22; color: #f4efe2; letter-spacing: -.005em; }

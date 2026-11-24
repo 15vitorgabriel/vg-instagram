@@ -199,9 +199,9 @@ const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><sty
 @property --d { syntax: "<integer>"; inherits: false; initial-value: 0; }
 :root { --y: #ffcc00; --ease: cubic-bezier(.16,1,.3,1); }
 * { margin: 0; box-sizing: border-box; }
-html, body { width: ${W}px; height: ${H}px; overflow: hidden; background: #0b0b0c; }
+html, body { width: ${W}px; height: ${H}px; overflow: hidden; background: #101012; }
 body { font-family: "Inter Tight", sans-serif; color: #f2f2f2; -webkit-font-smoothing: antialiased; position: relative;
-  background: radial-gradient(120% 70% at 50% 38%, #1d1d20 0%, #0b0b0c 70%); }
+  background: #101012 /* fundo liso: degradê escuro vira anéis (banding) no vídeo */; }
 .floor { position: absolute; left: 160px; right: 160px; top: 1240px; height: 70px; border-radius: 50%; background: rgba(0,0,0,.8); filter: blur(28px); }
 @keyframes show { from { visibility: hidden } to { visibility: visible } }
 @keyframes sumir { to { opacity: 0 } }

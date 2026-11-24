@@ -94,8 +94,7 @@ body { color: var(--ink); font-family: "Inter Tight", sans-serif; -webkit-font-s
 
 /* Fundo vivo: grade que desliza, brilho amarelo que passeia, granulação */
 .grid { position: absolute; inset: -200px; background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
-  background-size: 120px 120px; animation: drift ${tl.total.toFixed(2)}s linear 0s both;
-  -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 45%, #000 20%, transparent 75%); }
+  background-size: 120px 120px; animation: drift ${tl.total.toFixed(2)}s linear 0s both; opacity: .6; }
 @keyframes drift { from { transform: translate(0,0) } to { transform: translate(-120px, -${Math.round(tl.total * 18)}px) } }
 .grain { position: absolute; inset: 0; opacity: .06; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>`)}"); }
 

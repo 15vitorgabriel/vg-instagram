@@ -52,8 +52,8 @@ export async function rodar({ id, minimo, capa = 2.8, montar }) {
 @property --n { syntax: "<integer>"; inherits: false; initial-value: 0; }
 :root { --y: #ffcc00; --ease: cubic-bezier(.16,1,.3,1); }
 * { margin: 0; box-sizing: border-box; }
-html, body { width: ${W}px; height: ${H}px; overflow: hidden; background: #0b0b0c; }
-body { font-family: "Inter Tight", sans-serif; color: #f2f2f2; -webkit-font-smoothing: antialiased; position: relative; background: radial-gradient(120% 70% at 50% 38%, #1d1d20 0%, #0b0b0c 70%); }
+html, body { width: ${W}px; height: ${H}px; overflow: hidden; background: #101012; }
+body { font-family: "Inter Tight", sans-serif; color: #f2f2f2; -webkit-font-smoothing: antialiased; position: relative; background: #101012 /* fundo liso: degradê escuro vira anéis (banding) no vídeo */; }
 @keyframes show { from { visibility: hidden } to { visibility: visible } }
 @keyframes hide { to { visibility: hidden; opacity: 0 } }
 @keyframes rise { from { opacity: 0; transform: translateY(30px) } to { opacity: 1; transform: none } }
