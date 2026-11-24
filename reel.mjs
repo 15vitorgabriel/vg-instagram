@@ -274,6 +274,8 @@ export function soundtrack(total, cuts, seed, voices = []) {
 // O que o locutor fala em cada cena: o texto da lâmina, do jeito que se diz em voz alta
 const numeros = ["zero", "Um", "Dois", "Três", "Quatro", "Cinco", "Seis", "Sete"];
 export function falas(post) {
+  // roteiro próprio (campo "falas"): usado pelos reels animados que não seguem uma lâmina por cena
+  if (Array.isArray(post.falas)) return post.falas;
   return post.slides.map((s) => {
     const t = (x = "") => plain(x).replace(/\n/g, " ").trim();
     const fim = (x) => (/[.!?]$/.test(x) ? x : x + ".");
@@ -292,11 +294,11 @@ const arquivoVoz = (dir, i) => ["m4a", "wav"].map((e) => path.join(dir, `voz-${i
 
 export function narrate(post, out, ffmpeg, id = "") {
   const cache = process.env.REEL_VOZ_DIR || (id && vozGuardada(id));
-  const temCache = !process.env.REEL_SEM_CACHE && cache && post.slides.every((_, i) => arquivoVoz(cache, i));
-  if (post.voz === false || process.env.REEL_SEM_VOZ || (!process.env.GEMINI_API_KEY && !temCache)) return post.slides.map(() => null);
+  const textos = falas(post), nada = () => textos.map(() => null);
+  const temCache = !process.env.REEL_SEM_CACHE && cache && textos.every((_, i) => arquivoVoz(cache, i));
+  if (post.voz === false || process.env.REEL_SEM_VOZ || (!process.env.GEMINI_API_KEY && !temCache)) return nada();
   if (temCache) console.log(`locução guardada em ${cache}`);
   const here = path.dirname(new URL(import.meta.url).pathname);
-  const textos = falas(post);
   const res = [];
   for (let i = 0; i < textos.length; i++) {
     const wav = path.join(out, `voz-${i + 1}.wav`), raw = `${wav}.f32`;
@@ -312,7 +314,7 @@ export function narrate(post, out, ffmpeg, id = "") {
       console.log(`locução: limite por minuto do Gemini na cena ${i + 1}, esperando ${espera} s`);
       Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, espera * 1000);
     }
-    if (r.status !== 0) { console.warn(`locução falhou na cena ${i + 1}, o reel sai só com a trilha: ${(r.stderr || "").slice(-300)}`); return post.slides.map(() => null); }
+    if (r.status !== 0) { console.warn(`locução falhou na cena ${i + 1}, o reel sai só com a trilha: ${(r.stderr || "").slice(-300)}`); return nada(); }
     // corta o silêncio do começo e converte para float 44,1 kHz mono
     const c = spawnSync(ffmpeg, ["-y", "-loglevel", "error", "-i", wav, "-af", "highpass=f=80,lowpass=f=9500,deesser=i=0.5:m=0.5:f=0.5,silenceremove=start_periods=1:start_threshold=-45dB,loudnorm=I=-18:TP=-4",
       "-ar", "44100", "-ac", "1", "-f", "f32le", raw]);

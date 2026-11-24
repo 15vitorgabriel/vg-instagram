@@ -1,0 +1,27 @@
+{
+  "caption": "Prazer, VG Tecnologia.\n\nSomos uma empresa focada em criar soluções digitais profissionais que geram resultados reais. Unimos estratégia, tecnologia e automação para ajudar negócios a crescerem de forma moderna e eficiente.\n\nHonestidade, seriedade e transparência guiam cada projeto. Cada um é feito do zero, a partir de como o seu negócio funciona, e a gente continua junto depois da entrega.\n\nVamos conversar sobre o seu projeto? Fale com a gente no WhatsApp, link na bio.\n\n#vgtecnologia #criacaodesites #sistemas #automacao",
+  "hora": 18,
+  "reel": true,
+  "motion": "quem-somos",
+  "falas": [
+    "Prazer, VG Tecnologia.",
+    "Somos uma empresa focada em criar soluções digitais profissionais, que geram resultados reais.",
+    "Unimos estratégia, tecnologia e automação para ajudar negócios a crescerem de forma moderna e eficiente.",
+    "Nossos valores: honestidade, seriedade e transparência.",
+    "Nosso objetivo com cada empresa: estar cem por cento dedicados ao seu sucesso.",
+    "Cada projeto é feito do zero, a partir de como o seu negócio funciona. E a gente continua junto depois da entrega.",
+    "Tudo o que fizerem, façam de todo o coração, como para o Senhor, e não para os homens. Colossenses, capítulo três, versículo vinte e três.",
+    "Vamos conversar sobre o seu projeto? Fale com a gente no WhatsApp. O link está na bio."
+  ],
+  "slides": [
+    {
+      "t": "cover",
+      "title": "Prazer, [[VG Tecnologia]].",
+      "sub": "Quem somos e no que acreditamos."
+    },
+    {
+      "t": "cta",
+      "title": "Vamos conversar sobre o seu [[projeto]]?"
+    }
+  ]
+}
