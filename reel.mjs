@@ -265,8 +265,9 @@ export function soundtrack(total, cuts, seed, voices = []) {
   for (let i = 0; i < N; i++) {
     const t = i / SR, g = Math.min(1, t / 0.25) * Math.min(1, (total - t) / 1.8);
     env += (talk[i] - env) * (talk[i] > env ? 0.0015 : 0.00012);
-    const m = hasVoice ? 0.42 * (1 - 0.6 * env) : 1;
-    L[i] = Math.tanh((L[i] * m + V[i]) * 1.3) * g; R[i] = Math.tanh((R[i] * m + V[i]) * 1.3) * g;
+    // com locução: voz abaixo do limite e sem "drive" na saturação, para os "s" não estourarem em chiado
+    const m = hasVoice ? 0.42 * (1 - 0.6 * env) : 1, vg = 0.6, drive = hasVoice ? 1 : 1.3;
+    L[i] = Math.tanh((L[i] * m + V[i] * vg) * drive) * g; R[i] = Math.tanh((R[i] * m + V[i] * vg) * drive) * g;
     peak = Math.max(peak, Math.abs(L[i]), Math.abs(R[i]));
   }
   const norm = 0.89 / (peak || 1);
@@ -314,7 +315,7 @@ function narrate(post, out, ffmpeg) {
     }
     if (r.status !== 0) { console.warn(`locução falhou na cena ${i + 1}, o reel sai só com a trilha: ${(r.stderr || "").slice(-300)}`); return post.slides.map(() => null); }
     // corta o silêncio do começo e converte para float 44,1 kHz mono
-    const c = spawnSync(ffmpeg, ["-y", "-loglevel", "error", "-i", wav, "-af", "silenceremove=start_periods=1:start_threshold=-45dB,loudnorm=I=-16:TP=-1.5",
+    const c = spawnSync(ffmpeg, ["-y", "-loglevel", "error", "-i", wav, "-af", "highpass=f=80,lowpass=f=9500,deesser=i=0.5:m=0.5:f=0.5,silenceremove=start_periods=1:start_threshold=-45dB,loudnorm=I=-18:TP=-4",
       "-ar", "44100", "-ac", "1", "-f", "f32le", raw]);
     if (c.status !== 0) throw new Error(`ffmpeg na locução: ${c.stderr}`);
     const b = readFileSync(raw);
