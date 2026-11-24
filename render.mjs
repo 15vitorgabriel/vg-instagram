@@ -199,7 +199,12 @@ post.slides.forEach((s, i) => {
 console.log(`${total} lâmina(s) em ${path.relative(process.cwd(), out)}`);
 
 // Reel: vídeo animado (reel.mjs) com as mesmas lâminas; a primeira lâmina estática (1.jpg) vira a capa
-if (post.reel) {
+// Reel animado do zero (campo "motion": nome do roteiro em motion/), com a mesma voz e trilha
+if (post.motion) {
+  const m = spawnSync(process.execPath, [path.join(here, "motion", `${post.motion}.mjs`)], { stdio: "inherit", env: { ...process.env, MOTION_OUT: out, BROWSER } });
+  if (m.status !== 0) throw new Error(`motion/${post.motion}.mjs falhou`);
+  console.log(`reel animado em ${path.relative(process.cwd(), out)}/reel.mp4`);
+} else if (post.reel) {
   const { buildReel } = await import("./reel.mjs");
   const secs = await buildReel(post, out, { browser: BROWSER, ffmpeg: process.env.FFMPEG || "ffmpeg", id: date });
   console.log(`reel em ${path.relative(process.cwd(), out)}/reel.mp4 (${secs.toFixed(1)} s)`);

@@ -14,11 +14,12 @@ const root = path.join(here, "..");
 const ID = "2026-11-26";
 const W = 1080, H = 1920, FPS = 30;
 const post = JSON.parse(readFileSync(path.join(root, "posts", `${ID}.json`), "utf8"));
-const out = path.join(root, "out", `${ID}-motion`);
+// MOTION_OUT: chamado pelo render.mjs, grava direto em out/ID (reel.mp4 e a capa 1.jpg)
+const out = process.env.MOTION_OUT || path.join(root, "out", `${ID}-motion`);
 mkdirSync(out, { recursive: true });
 
 // ---------- linha do tempo: cada cena dura a fala dela ----------
-const voz = narrate(post, out, process.env.FFMPEG || "ffmpeg");
+const voz = narrate(post, out, process.env.FFMPEG || "ffmpeg", ID);
 const dur = voz.map((v, i) => Math.max(i === 0 ? 4.2 : 3.6, v ? v.length / 44100 + 1.0 : 4.5));
 dur[dur.length - 1] += 1.8;
 const start = []; dur.reduce((t, d, i) => (start[i] = t, t + d), 0);
@@ -262,7 +263,7 @@ ${css}
 </div></div></div>
 ${caps.join("")}
 ${finale}
-<div class="handle">@_vgtecnologia</div>
+
 <script>window.seek = (ms) => { for (const a of document.getAnimations()) { a.pause(); a.currentTime = ms; } };</script>
 </body></html>`;
 
@@ -308,6 +309,11 @@ try {
       if (!enc.stdin.write(Buffer.from(data, "base64"))) await new Promise((r) => enc.stdin.once("drain", r));
     }
     enc.stdin.end(); await done;
+    // capa do reel no perfil: o quadro com o título da primeira cena já escrito
+    if (process.env.MOTION_OUT) {
+      const c = (await import("node:child_process")).spawnSync(process.env.FFMPEG || "ffmpeg", ["-y", "-loglevel", "error", "-ss", String(start[0] + 2.8), "-i", path.join(out, "reel.mp4"), "-frames:v", "1", "-q:v", "2", path.join(out, "1.jpg")]);
+      if (c.status !== 0) throw new Error(`capa: ${c.stderr}`);
+    }
     console.log(`motion em ${path.relative(process.cwd(), out)}/reel.mp4`);
   }
 } finally { close(); rmSync(wav, { force: true }); }
