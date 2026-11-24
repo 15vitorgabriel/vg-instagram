@@ -20,8 +20,8 @@ mkdirSync(out, { recursive: true });
 
 // ---------- linha do tempo: cada cena dura a fala dela ----------
 const voz = narrate(post, out, process.env.FFMPEG || "ffmpeg", ID);
-const dur = voz.map((v, i) => Math.max(i === 0 ? 4.2 : 3.6, v ? v.length / 44100 + 1.0 : 4.5));
-dur[dur.length - 1] += 1.8;
+const minimo = [6.5, 11, 11, 11, 12, 9];
+const dur = voz.map((v, i) => Math.max(minimo[i] ?? 9, v ? v.length / 44100 + 2.6 : 0));
 const start = []; dur.reduce((t, d, i) => (start[i] = t, t + d), 0);
 const total = dur.reduce((a, b) => a + b, 0);
 console.log("cenas:", dur.map((d) => d.toFixed(1)).join(" "), "total", total.toFixed(1));
@@ -37,7 +37,7 @@ function caption(i, kicker, text) {
     if (!part) continue;
     const y = part.startsWith("*");
     for (const w of (y ? part.slice(1, -1) : part).split(/\s+/).filter(Boolean))
-      html += `<span class="w${y ? " y" : ""}" style="animation:${anim("word", 0.6, t0 + 0.25 + k++ * 0.06)}">${esc(w)}</span> `;
+      html += `<span class="w${y ? " y" : ""}" style="animation:${anim("word", 0.6, t0 + 0.25 + k++ * 0.09)}">${esc(w)}</span> `;
   }
   const exit = i < dur.length - 1 ? `, ${anim("capout", 0.35, end - 0.35, "ease-in")}` : "";
   return `<div class="cap" style="animation:${anim("show", 0.01, start[i], "linear")}${exit}">
@@ -77,7 +77,7 @@ const t1 = screen(0, `
   </div>`);
 
 // 2. Central de Controle (desliga o Wi-Fi) e depois o Safari carregando no 4G
-const desliga = S(1, 1.0), abre = S(1, 1.9), dSaf = Math.max(2.2, dur[1] - 2.4);
+const desliga = S(1, 1.8), abre = S(1, 3.2), dSaf = Math.max(2.2, dur[1] - 3.8);
 const t2 = screen(1, `
   ${status({ hora: "9:41", escuro: true, trocaRede: desliga, anim: A })}
   <div class="cc">
@@ -110,13 +110,13 @@ const t2 = screen(1, `
 const segundosSaf = Math.round((dSaf - 0.3) * 1.7);
 
 // 3. perfil da loja no Instagram, rolando sem achar a oferta
-const dIg = Math.max(2.6, dur[2] - 1.3);
+const dIg = Math.max(2.6, dur[2] - 3.4);
 const destaques = [["Novidades", "#f6e7d8", "#d0643b", ic.etiqueta], ["Black", "#111", "#ffcc00", ic.etiqueta], ["Provador", "#e4ecf7", "#1f3b73", ic.camera], ["Entregas", "#e8f3ea", "#2f7d4f", ic.casa], ["Avaliações", "#fbf1d9", "#c98a12", ic.emoji]];
 const t3 = screen(2, `
   <div class="ig">
     ${status({ hora: "9:42", net: "4g", anim: A })}
     <div class="top">${ic.voltar}<span>sualoja</span><span class="sp"></span>${ic.sino}${ic.pontos}</div>
-    <div class="feed" style="animation:${A("rolar", dIg, S(2, 0.6), "cubic-bezier(.45,.05,.25,1)")}">
+    <div class="feed" style="animation:${A("rolar", dIg, S(2, 1.2), "cubic-bezier(.45,.05,.25,1)")}">
       <div class="prof"><span class="ring"><b>SL</b></span>
         <div class="stats"><div><b>1.248</b>posts</div><div><b>32,4 mil</b>seguidores</div><div><b>412</b>seguindo</div></div></div>
       <div class="bio"><b>Sua Loja</b><br><span class="cat">Loja de roupas</span><br>Moda feminina e masculina · Curitiba<br>Entregamos para todo o Brasil<br><span class="lk">sualoja.com.br/black</span></div>
@@ -126,15 +126,15 @@ const t3 = screen(2, `
       <div class="grid">${Array.from({ length: 33 }, (_, k) => tile(k, { oferta: k === 31 })).join("")}</div>
     </div>
     <div class="nav">${ic.casa}${ic.lupa}${ic.mais}${ic.reels}<span class="me"></span></div>
-    ${[0, 1, 2, 3].map((n) => `<div class="tap esc" style="left:180px;top:640px;animation:${A("arrasta", 0.55, S(2, 0.55 + n * (dIg / 4.6)), "ease-in-out")}"></div>`).join("")}
-    <div class="toast" style="top:400px;opacity:0;animation:${A("pop", 0.5, S(2, dur[2] - 1.45), "cubic-bezier(.34,1.56,.64,1)")}">${ic.xis}<div>O cliente fechou o app<small>e não viu a oferta</small></div></div>
+    ${[0, 1, 2, 3].map((n) => `<div class="tap esc" style="left:180px;top:640px;animation:${A("arrasta", 0.55, S(2, 1.15 + n * (dIg / 4.6)), "ease-in-out")}"></div>`).join("")}
+    <div class="toast" style="top:400px;opacity:0;animation:${A("pop", 0.5, S(2, dur[2] - 2.3), "cubic-bezier(.34,1.56,.64,1)")}">${ic.xis}<div>O cliente fechou o app<small>e não viu a oferta</small></div></div>
     ${homeBar(false)}
   </div>`);
 
 // 4. link da bio: toca em cada botão; um deles dá 404
 const botoes = [["#25d366", ic.whatsapp, "Fale no WhatsApp", true], ["#111", ic.globo, "Loja online", true], ["#e0263f", ic.etiqueta, "Ofertas da Black Friday", false], ["#c98a12", ic.livro, "Catálogo 2026", true]];
-const passo = Math.max(0.6, (dur[3] - 2.0) / 4);
-const at4 = (k) => S(3, 0.8 + k * passo);
+const passo = Math.max(0.6, (dur[3] - 4.2) / 4);
+const at4 = (k) => S(3, 1.3 + k * passo);
 const t4 = screen(3, `
   <div class="lb">
     ${status({ hora: "9:43", net: "4g", anim: A })}
@@ -152,7 +152,7 @@ const t4 = screen(3, `
 
 // 5. WhatsApp às 23h: mensagem sem resposta até de manhã
 const horas = [["23:04", 0], ["23:51", 0.38], ["01:27", 0.5], ["04:10", 0.6], ["08:12", 0.7]];
-const dWa = Math.max(2.4, dur[4] - 1.0), h0 = S(4, 1.4);
+const dWa = Math.max(2.4, dur[4] - 5.0), h0 = S(4, 2.6);
 const hAt = (p) => h0 + p * dWa;
 const t5 = screen(4, `
   <div class="wa">
@@ -161,7 +161,7 @@ const t5 = screen(4, `
     <div class="hd"><span class="bk">${ic.voltar}12</span><span class="av"><b>SL</b></span>
       <div class="nm"><b>Sua Loja</b><span>visto por último hoje às 18:02</span></div><svg class="i" viewBox="0 0 24 24">${ic.video.slice(ic.video.indexOf(">") + 1, -6)}</svg><svg class="i" viewBox="0 0 24 24">${ic.fone.slice(ic.fone.indexOf(">") + 1, -6)}</svg></div>
     <div class="chip">HOJE</div>
-    <div class="msg" style="opacity:0;animation:${A("drop", 0.5, S(4, 0.6), "cubic-bezier(.34,1.4,.64,1)")}">Oi! A promoção da Black Friday ainda está valendo? Queria fechar hoje.<small>23:04 ${ic.tique2}</small></div>
+    <div class="msg" style="opacity:0;animation:${A("drop", 0.5, S(4, 1.0), "cubic-bezier(.34,1.4,.64,1)")}">Oi! A promoção da Black Friday ainda está valendo? Queria fechar hoje.<small>23:04 ${ic.tique2}</small></div>
     <div class="inp"><span class="pl">${ic.mais.replace('rx="5"', 'rx="12"')}</span><div class="box"><span class="gr">Mensagem</span>${ic.figurinha}${ic.camera}</div><span class="mic">${ic.mic}</span></div>
     <div class="noite" style="animation:${A("noite", dWa, h0, "linear")}"></div>
     <div class="relogio" style="opacity:0;animation:${A("rise", 0.5, h0 - 0.2)}">
@@ -169,7 +169,7 @@ const t5 = screen(4, `
       <div class="ce"><span class="lua" style="animation:${A("hide", 0.5, hAt(0.66), "ease")}">${ic.lua}</span><span class="sol" style="animation:${A("pop", 0.6, hAt(0.7), "ease")}">${ic.sol}</span></div>
       <div class="leg">sem resposta</div>
     </div>
-    <div class="nt ban" style="opacity:0;animation:${A("drop", 0.6, S(4, dur[4] - 1.5), "cubic-bezier(.34,1.4,.64,1)")}">${appIcon("carrinho", 56)}
+    <div class="nt ban" style="opacity:0;animation:${A("drop", 0.6, S(4, dur[4] - 2.6), "cubic-bezier(.34,1.4,.64,1)")}">${appIcon("carrinho", 56)}
       <div class="tx"><div class="l1"><span>Pedido confirmado</span><em>08:12</em></div><div class="l2">Sua compra na Loja Concorrente foi aprovada.</div></div></div>
     ${homeBar(true)}
   </div>`);
@@ -188,7 +188,8 @@ const finale = `
     <img class="logo" src="../../assets/logo.png" style="animation:${A("logoin", 0.9, c6 + 1.0, "cubic-bezier(.2,1.3,.4,1)")}">
     <div class="tec" style="animation:${A("rise", 0.6, c6 + 1.4)}">TECNOLOGIA</div>
     <div class="fh">${"Travou em algum".split(" ").map((w, k) => `<span class="w" style="animation:${A("word", 0.6, c6 + 1.7 + k * 0.07)}">${w}</span>`).join(" ")} <span class="w y" style="animation:${A("word", 0.6, c6 + 1.95)}">passo?</span></div>
-    <div class="ctaw" style="animation:${A("rise", 0.6, c6 + 2.4)}"><span class="wabtn" style="animation:${A("pulso", 1.4, c6 + 3.0, "ease-in-out", "infinite")}">${ic.whatsapp}Chamar no WhatsApp</span><small>O link está na bio</small></div>
+    <div class="ctaw" style="animation:${A("rise", 0.7, c6 + 2.6)}"><div class="walinha"><span class="walogo">${ic.whatsapp}</span><span>Fale com a gente<br>no <b>WhatsApp</b></span></div>
+      <div class="bio" style="animation:${A("rise", 0.6, c6 + 3.4)}"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>O link está na bio</div></div>
   </div>`;
 
 const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><style>
@@ -203,6 +204,7 @@ body { font-family: "Inter Tight", sans-serif; color: #f2f2f2; -webkit-font-smoo
   background: radial-gradient(120% 70% at 50% 38%, #1d1d20 0%, #0b0b0c 70%); }
 .floor { position: absolute; left: 160px; right: 160px; top: 1240px; height: 70px; border-radius: 50%; background: rgba(0,0,0,.8); filter: blur(28px); }
 @keyframes show { from { visibility: hidden } to { visibility: visible } }
+@keyframes sumir { to { opacity: 0 } }
 @keyframes hide { to { visibility: hidden; opacity: 0 } }
 @keyframes rise { from { opacity: 0; transform: translateY(30px) } to { opacity: 1; transform: none } }
 @keyframes word { from { opacity: 0; transform: translateY(46px); filter: blur(8px) } to { opacity: 1; transform: none; filter: none } }
@@ -250,12 +252,17 @@ ${css}
 @keyframes logoin { from { opacity: 0; transform: scale(.4) rotateY(70deg) } to { opacity: 1; transform: none } }
 .tec { position: absolute; left: 0; right: 0; top: 870px; text-align: center; font-size: 30px; letter-spacing: .55em; color: var(--y); font-weight: 600; opacity: 0; }
 .fh { position: absolute; left: 90px; right: 150px; top: 1020px; text-align: center; font-size: 84px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
-.ctaw { position: absolute; left: 90px; right: 150px; top: 1270px; display: flex; flex-direction: column; align-items: center; gap: 22px; opacity: 0; }
-.ctaw small { font-size: 28px; font-weight: 600; color: #9b9b9b; }
+.ctaw { position: absolute; left: 90px; right: 150px; top: 1250px; display: flex; flex-direction: column; align-items: center; gap: 34px; opacity: 0; }
+.walinha { display: flex; align-items: center; gap: 26px; font-size: 46px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: #f2f2f2; }
+.walinha b { color: #25d366; font-weight: 800; }
+.walogo { width: 104px; height: 104px; border-radius: 50%; background: #25d366; color: #fff; display: grid; place-items: center; flex: none; box-shadow: 0 14px 36px rgba(37,211,102,.3); }
+.walogo svg { width: 64px; height: 64px; }
+.ctaw .bio { display: flex; align-items: center; gap: 12px; font-size: 32px; font-weight: 600; color: #b5b5b5; opacity: 0; }
+.ctaw .bio svg { width: 34px; height: 34px; color: var(--y); }
 @keyframes pulso { 0%, 100% { box-shadow: 0 16px 40px rgba(37,211,102,.35), 0 0 0 0 rgba(37,211,102,.5), inset 0 -4px 0 rgba(0,0,0,.12) } 50% { box-shadow: 0 16px 40px rgba(37,211,102,.35), 0 0 0 22px rgba(37,211,102,0), inset 0 -4px 0 rgba(0,0,0,.12) } }
 .handle { position: absolute; left: 0; right: 60px; bottom: 300px; text-align: center; font-size: 28px; font-weight: 600; color: #8d8d8d; }
 </style></head><body>
-<div class="floor"></div>
+<div class="floor" style="animation:${A("sumir", 0.6, c6 + 0.2, "ease")}"></div>
 <div class="stage"><div class="phone">
   <span class="side" style="left:-4px;top:200px;height:60px"></span><span class="side" style="left:-4px;top:290px;height:100px"></span><span class="side" style="left:-4px;top:410px;height:100px"></span><span class="side" style="right:-4px;top:300px;height:150px"></span>
   <div class="glass"><div class="island"></div>

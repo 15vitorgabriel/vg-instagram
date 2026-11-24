@@ -278,7 +278,7 @@ export function falas(post) {
     const t = (x = "") => plain(x).replace(/\n/g, " ").trim();
     const fim = (x) => (/[.!?]$/.test(x) ? x : x + ".");
     if (s.t === "point") return `${numeros[Number(s.n)] ?? s.n}. ${fim(t(s.title))} ${t(s.body)}`;
-    if (s.t === "cta") return `${fim(t(s.title))} Chama no WhatsApp. O link está na bio.`;
+    if (s.t === "cta") return `${fim(t(s.title))} Fale com a gente no WhatsApp. O link está na bio.`;
     return [fim(t(s.title)), s.sub ? t(s.sub) : ""].join(" ").trim();
   });
 }
