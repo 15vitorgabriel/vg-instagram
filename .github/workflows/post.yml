@@ -81,16 +81,36 @@ jobs:
         with:
           path: out
 
+      # O deploy do Pages às vezes falha com "No artifacts named github-pages" logo depois do upload (instabilidade do
+      # GitHub; em 23/11 isso atrasou o post das 12h para as 23h). Tenta até 3 vezes, com espera entre elas.
       - uses: actions/deploy-pages@v4
         if: steps.ids.outputs.ids != ''
         id: pages
+        continue-on-error: true
+
+      - name: Esperar para tentar o deploy de novo
+        if: steps.ids.outputs.ids != '' && steps.pages.outcome == 'failure'
+        run: sleep 45
+
+      - uses: actions/deploy-pages@v4
+        if: steps.ids.outputs.ids != '' && steps.pages.outcome == 'failure'
+        id: pages2
+        continue-on-error: true
+
+      - name: Esperar mais um pouco
+        if: steps.ids.outputs.ids != '' && steps.pages.outcome == 'failure' && steps.pages2.outcome == 'failure'
+        run: sleep 90
+
+      - uses: actions/deploy-pages@v4
+        if: steps.ids.outputs.ids != '' && steps.pages.outcome == 'failure' && steps.pages2.outcome == 'failure'
+        id: pages3
 
       - name: Publicar no Instagram
         if: steps.ids.outputs.ids != ''
         env:
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
-          MEDIA_BASE_URL: ${{ steps.pages.outputs.page_url }}
+          MEDIA_BASE_URL: ${{ steps.pages.outputs.page_url || steps.pages2.outputs.page_url || steps.pages3.outputs.page_url }}
         run: |
           MEDIA_BASE_URL="${MEDIA_BASE_URL%/}"
           for id in ${{ steps.ids.outputs.ids }}; do
