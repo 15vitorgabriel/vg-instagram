@@ -132,3 +132,22 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add published.json 2>/dev/null || true
           git diff --cached --quiet || (git commit -m "Publicado: ${{ steps.ids.outputs.ids }}" && git push)
+
+      # Locução do próximo reel, feita com antecedência e guardada no repositório (assets/voz/ID): o plano grátis do
+      # Gemini só dá 10 falas por dia, então o dia do reel não pode depender da cota.
+      - name: Preparar a locução do próximo reel
+        if: always()
+        continue-on-error: true
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          [ -n "$GEMINI_API_KEY" ] || exit 0
+          node locucao.mjs --precisa || exit 0
+          command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+          node locucao.mjs --proximo
+          git config user.name "vg-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/voz
+          git diff --cached --quiet && exit 0
+          git commit -m "Locução guardada do próximo reel"
+          for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 5; done

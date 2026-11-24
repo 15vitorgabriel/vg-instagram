@@ -285,10 +285,16 @@ export function falas(post) {
 
 // Gera a voz de cada cena com o voz.mjs (Gemini TTS). Sem GEMINI_API_KEY, ou se a API falhar, o reel sai só com
 // a trilha: a locução nunca impede a publicação.
-export function narrate(post, out, ffmpeg) {
-  const cache = process.env.REEL_VOZ_DIR;
-  const temCache = cache && post.slides.every((_, i) => existsSync(path.join(cache, `voz-${i + 1}.wav`)));
+// Locução guardada: assets/voz/ID/voz-N.m4a, gerada na véspera pelo locucao.mjs. O plano grátis do Gemini só dá
+// 10 falas por dia e cada reel usa ~6, então a voz é feita com antecedência e o dia do post não depende da cota.
+export const vozGuardada = (id) => path.join(path.dirname(new URL(import.meta.url).pathname), "assets", "voz", id);
+const arquivoVoz = (dir, i) => ["m4a", "wav"].map((e) => path.join(dir, `voz-${i + 1}.${e}`)).find((f) => existsSync(f));
+
+export function narrate(post, out, ffmpeg, id = "") {
+  const cache = process.env.REEL_VOZ_DIR || (id && vozGuardada(id));
+  const temCache = !process.env.REEL_SEM_CACHE && cache && post.slides.every((_, i) => arquivoVoz(cache, i));
   if (post.voz === false || process.env.REEL_SEM_VOZ || (!process.env.GEMINI_API_KEY && !temCache)) return post.slides.map(() => null);
+  if (temCache) console.log(`locução guardada em ${cache}`);
   const here = path.dirname(new URL(import.meta.url).pathname);
   const textos = falas(post);
   const res = [];
@@ -296,11 +302,13 @@ export function narrate(post, out, ffmpeg) {
     const wav = path.join(out, `voz-${i + 1}.wav`), raw = `${wav}.f32`;
     // O plano grátis do Gemini limita pedidos por minuto: quando ele manda esperar, espera o tempo pedido e tenta de novo
     let r = { status: 0 };
-    if (temCache) copyFileSync(path.join(cache, `voz-${i + 1}.wav`), wav);
+    if (temCache) copyFileSync(arquivoVoz(cache, i), wav); // o ffmpeg lê pelo conteúdo, não pela extensão
     else for (let tentativa = 1; tentativa <= 4; tentativa++) {
       r = spawnSync(process.execPath, [path.join(here, "voz.mjs"), post.locutor || "Alnilam", wav, textos[i]], { encoding: "utf8", timeout: 120000 });
       if (r.status === 0 || !/RESOURCE_EXHAUSTED|"code":\s*429|retryDelay/.test(r.stderr || "")) break;
-      const espera = Math.min(90, Number((r.stderr.match(/"retryDelay":"(\d+)/) || [])[1] || 60) + 3);
+      const pedido = Number((r.stderr.match(/"retryDelay":"(\d+)/) || [])[1] || 60);
+      if (pedido > 300) { console.warn("locução: a cota DIÁRIA do Gemini acabou; não adianta esperar"); break; }
+      const espera = Math.min(90, pedido + 3);
       console.log(`locução: limite por minuto do Gemini na cena ${i + 1}, esperando ${espera} s`);
       Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, espera * 1000);
     }
@@ -325,7 +333,7 @@ export function narrate(post, out, ffmpeg) {
 
 export async function buildReel(post, out, { browser, ffmpeg = "ffmpeg", id = "" } = {}) {
   if (post.slides.some((s) => s.t === "shot")) throw new Error("reel não aceita lâmina shot");
-  const voice = narrate(post, out, ffmpeg);
+  const voice = narrate(post, out, ffmpeg, id);
   const tl = timeline(post.slides, voice.map((v) => v && v.length / 44100 + 0.9));
   const html = path.join(out, "reel.html");
   writeFileSync(html, page(post, tl));

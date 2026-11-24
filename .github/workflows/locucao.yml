@@ -1,15 +1,18 @@
-# Gera só a locução de um reel (Gemini TTS) e guarda como artefato, para testar versões do vídeo com a mesma voz.
+# Gera a locução de um reel (Gemini TTS) e guarda em assets/voz/ID. Vazio = próximo reel da fila sem voz guardada.
+# (O post.yml já faz isso sozinho todo dia; este é para rodar na mão.)
 name: Locução de um reel
 
 on:
   workflow_dispatch:
     inputs:
       date:
-        description: "Post (AAAA-MM-DD)"
-        required: true
+        description: "Post (AAAA-MM-DD). Vazio = próximo reel sem locução"
+        required: false
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency: locucao
 
 jobs:
   locucao:
@@ -19,14 +22,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Gerar locução
+      - name: Gerar e guardar a locução
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
-          node locucao.mjs "${{ inputs.date }}"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: voz-${{ inputs.date }}
-          path: out/${{ inputs.date }}/voz/
-          retention-days: 7
+          node locucao.mjs "${{ inputs.date || '--proximo' }}"
+          git config user.name "vg-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/voz
+          git diff --cached --quiet && exit 0
+          git commit -m "Locução guardada: ${{ inputs.date || 'próximo reel' }}"
+          for i in 1 2 3; do git pull --rebase -q && git push && break; sleep 5; done
