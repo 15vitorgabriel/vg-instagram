@@ -5,7 +5,7 @@
 // pausadas no instante exato e a tela é capturada, então o resultado é idêntico em qualquer máquina.
 // Áudio: trilha eletrônica sintetizada aqui mesmo (bumbo, chimbal, baixo, pad, arpejo e "whoosh" em cada
 // transição). Nada de música de terceiros, sem risco de direito autoral.
-import { writeFileSync, readFileSync, rmSync } from "node:fs";
+import { writeFileSync, readFileSync, rmSync, existsSync, copyFileSync, mkdirSync } from "node:fs";
 import { spawn, spawnSync } from "node:child_process";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -163,7 +163,7 @@ ${post.slides.map((s, i) => scene(s, i, tl.start[i], tl.dur[i], i === n - 1, tl.
 }
 
 // ---------- Chrome via DevTools Protocol ----------
-async function chrome(browser) {
+export async function chrome(browser) {
   const dir = path.join(process.env.RUNNER_TEMP || "/tmp", `reel-chrome-${process.pid}`);
   const proc = spawn(browser, ["--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run", "--no-default-browser-check",
     "--allow-file-access-from-files", "--remote-debugging-port=0", `--user-data-dir=${dir}`, `--window-size=${W},${H}`, "about:blank"],
@@ -239,19 +239,7 @@ export function soundtrack(total, cuts, seed, voices = []) {
       for (let j = 0; j < SR * 0.18; j++) { const t = j / SR; add(ia + j, (Math.sin(2 * Math.PI * f * t) + 0.3 * Math.sin(4 * Math.PI * f * t)) * Math.exp(-t * 22) * 0.05, pan); }
     }
   }
-  // troca de cena: só som limpo, sem ruído (o "whoosh" de ruído soava como chiado no celular).
-  // Um sino suave com duas notas do acorde e uma batida grave curta e baixa no corte.
-  for (const c of cuts) {
-    const ic = Math.floor(c * SR), acorde = chord(c);
-    for (const [k, atraso, pan] of [[0, 0, -0.25], [2, 0.07, 0.25]]) {
-      const f = hz(acorde[k] + 24), i0 = ic + Math.floor(atraso * SR);
-      for (let j = 0; j < SR * 0.9; j++) {
-        const t = j / SR, ataque = Math.min(1, t / 0.004);
-        add(i0 + j, (Math.sin(2 * Math.PI * f * t) + 0.25 * Math.sin(2 * Math.PI * f * 2 * t)) * ataque * Math.exp(-t * 5) * 0.07, pan);
-      }
-    }
-    for (let j = 0; j < SR * 0.35; j++) { const t = j / SR, ataque = Math.min(1, t / 0.003); add(ic + j, Math.sin(2 * Math.PI * (45 + 40 * Math.exp(-t * 25)) * t) * ataque * Math.exp(-t * 9) * 0.18); }
-  }
+  // troca de cena: sem efeito sonoro (pedido do dono). Só música e voz.
   // locução: entra por cima, e a música abaixa enquanto alguém fala (com subida e descida suaves)
   const V = new Float32Array(N), talk = new Float32Array(N);
   for (const { at, pcm } of voices) {
@@ -285,7 +273,7 @@ export function soundtrack(total, cuts, seed, voices = []) {
 // ---------- Locução ----------
 // O que o locutor fala em cada cena: o texto da lâmina, do jeito que se diz em voz alta
 const numeros = ["zero", "Um", "Dois", "Três", "Quatro", "Cinco", "Seis", "Sete"];
-function falas(post) {
+export function falas(post) {
   return post.slides.map((s) => {
     const t = (x = "") => plain(x).replace(/\n/g, " ").trim();
     const fim = (x) => (/[.!?]$/.test(x) ? x : x + ".");
@@ -297,16 +285,19 @@ function falas(post) {
 
 // Gera a voz de cada cena com o voz.mjs (Gemini TTS). Sem GEMINI_API_KEY, ou se a API falhar, o reel sai só com
 // a trilha: a locução nunca impede a publicação.
-function narrate(post, out, ffmpeg) {
-  if (!process.env.GEMINI_API_KEY || post.voz === false || process.env.REEL_SEM_VOZ) return post.slides.map(() => null);
+export function narrate(post, out, ffmpeg) {
+  const cache = process.env.REEL_VOZ_DIR;
+  const temCache = cache && post.slides.every((_, i) => existsSync(path.join(cache, `voz-${i + 1}.wav`)));
+  if (post.voz === false || process.env.REEL_SEM_VOZ || (!process.env.GEMINI_API_KEY && !temCache)) return post.slides.map(() => null);
   const here = path.dirname(new URL(import.meta.url).pathname);
   const textos = falas(post);
   const res = [];
   for (let i = 0; i < textos.length; i++) {
     const wav = path.join(out, `voz-${i + 1}.wav`), raw = `${wav}.f32`;
     // O plano grátis do Gemini limita pedidos por minuto: quando ele manda esperar, espera o tempo pedido e tenta de novo
-    let r;
-    for (let tentativa = 1; tentativa <= 4; tentativa++) {
+    let r = { status: 0 };
+    if (temCache) copyFileSync(path.join(cache, `voz-${i + 1}.wav`), wav);
+    else for (let tentativa = 1; tentativa <= 4; tentativa++) {
       r = spawnSync(process.execPath, [path.join(here, "voz.mjs"), post.locutor || "Alnilam", wav, textos[i]], { encoding: "utf8", timeout: 120000 });
       if (r.status === 0 || !/RESOURCE_EXHAUSTED|"code":\s*429|retryDelay/.test(r.stderr || "")) break;
       const espera = Math.min(90, Number((r.stderr.match(/"retryDelay":"(\d+)/) || [])[1] || 60) + 3);
@@ -325,7 +316,9 @@ function narrate(post, out, ffmpeg) {
     for (let k = 0; k < fi; k++) v[k] *= k / fi;
     for (let k = 0; k < fo; k++) v[v.length - 1 - k] *= k / fo;
     res.push(v);
-    rmSync(raw); rmSync(wav);
+    rmSync(raw);
+    if (process.env.REEL_GUARDA_VOZ) { mkdirSync(path.join(out, "voz"), { recursive: true }); copyFileSync(wav, path.join(out, "voz", `voz-${i + 1}.wav`)); }
+    rmSync(wav);
   }
   return res;
 }
