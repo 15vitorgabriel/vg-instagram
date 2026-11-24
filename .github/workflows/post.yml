@@ -83,6 +83,11 @@ jobs:
 
       # O deploy do Pages às vezes falha com "No artifacts named github-pages" logo depois do upload (instabilidade do
       # GitHub; em 23/11 isso atrasou o post das 12h para as 23h). Tenta até 3 vezes, com espera entre elas.
+      # o GitHub às vezes ainda não lista o artefato 1 s depois do upload ("Found 0 artifact(s)")
+      - name: Esperar o artefato ficar visível
+        if: steps.ids.outputs.ids != ''
+        run: sleep 20
+
       - uses: actions/deploy-pages@v4
         if: steps.ids.outputs.ids != ''
         id: pages
