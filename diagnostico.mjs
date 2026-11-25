@@ -54,9 +54,12 @@ if (FB_PAGE_ID && FB_PAGE_TOKEN) {
   };
   const p = await pg(FB_PAGE_ID, { fields: "id,name,followers_count,link,instagram_business_account" });
   console.log("FB_PAGINA", JSON.stringify(p.erro ? p : { nome: p.name, seguidores: p.followers_count, link: p.link, ig_ligado: p.instagram_business_account?.id === IG_USER_ID ? "sim, @_vgtecnologia" : p.instagram_business_account?.id ? "outra conta" : "não" }));
-  const eu = await pg("me", { fields: "id,name", metadata: "1" });
-  console.log("FB_TOKEN", JSON.stringify(eu.erro ? eu : { de: eu.name, tipo: eu.metadata?.type, id_bate_com_FB_PAGE_ID: eu.id === FB_PAGE_ID }));
-  if (!eu.erro && eu.metadata?.type === "page") {
+  // só Página tem "category": se o campo vier, o token é de Página; se der erro, é token de usuário
+  const eu = await pg("me", { fields: "id,name,category" });
+  const ehPagina = !eu.erro && !!eu.category;
+  console.log("FB_TOKEN", JSON.stringify(eu.erro ? { erro: eu.erro.slice(0, 160) } : { de: eu.name, categoria: eu.category, token_de_pagina: ehPagina, id_bate_com_FB_PAGE_ID: eu.id === FB_PAGE_ID }));
+  if (eu.erro) { const u = await pg("me", { fields: "id,name" }); console.log("FB_TOKEN_USUARIO", JSON.stringify(u.erro ? u : { de: u.name, aviso: "é token de USUÁRIO, não de Página" })); }
+  if (ehPagina) {
     const p2 = await pg(eu.id, { fields: "name,followers_count,link,instagram_business_account" });
     console.log("FB_PAGINA_DO_TOKEN", JSON.stringify(p2.erro ? p2 : { nome: p2.name, seguidores: p2.followers_count, link: p2.link, ig_ligado: p2.instagram_business_account?.id === IG_USER_ID ? "sim, @_vgtecnologia" : p2.instagram_business_account?.id ? "outra conta" : "não" }));
     const perm = await pg(`${eu.id}/feed`, { limit: "1", fields: "id" });

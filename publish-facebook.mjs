@@ -34,9 +34,9 @@ async function call(endpoint, params = {}, { url } = {}) {
   return body;
 }
 // o ID da Página vem do próprio token (token de Página responde /me com a Página); FB_PAGE_ID só confere
-const eu = await (await fetch(`${API}/me?fields=id,name&metadata=1`, { headers: { Authorization: `Bearer ${FB_PAGE_TOKEN}` } })).json();
-if (eu.error) throw new Error(`token do Facebook: ${JSON.stringify(eu.error)}`);
-if (eu.metadata?.type !== "page") throw new Error(`FB_PAGE_TOKEN não é token de Página (é ${eu.metadata?.type} ${eu.name})`);
+// só Página tem "category": se o /me não devolve categoria, o token é de usuário e não serve
+const eu = await (await fetch(`${API}/me?fields=id,name,category`, { headers: { Authorization: `Bearer ${FB_PAGE_TOKEN}` } })).json();
+if (eu.error || !eu.category) throw new Error(`FB_PAGE_TOKEN não é token de Página: ${JSON.stringify(eu.error ?? eu.name)}`);
 const PAGE = eu.id;
 if (FB_PAGE_ID && FB_PAGE_ID !== PAGE) console.warn(`Facebook: FB_PAGE_ID não bate com a Página do token (${eu.name}); usando a do token`);
 const fotoOculta = async (url) => (await call(`${PAGE}/photos`, { url, published: "false" })).id;
