@@ -291,6 +291,40 @@ export function falas(post) {
 export const vozGuardada = (id) => path.join(path.dirname(new URL(import.meta.url).pathname), "assets", "voz", id);
 const arquivoVoz = (dir, i) => ["m4a", "wav"].map((e) => path.join(dir, `voz-${i + 1}.${e}`)).find((f) => existsSync(f));
 
+// Pede o roteiro inteiro ao Gemini numa chamada só (um parágrafo por cena) e corta o áudio nas N-1 maiores pausas.
+// Devolve a pasta com voz-1.wav..voz-N.wav, ou null se não deu (aí o narrate faz um pedido por cena).
+function vozDeUmaVez(textos, out, ffmpeg, locutor, here) {
+  if (textos.length < 2) return null;
+  const dir = path.join(out, "voz-inteira"); mkdirSync(dir, { recursive: true });
+  const full = path.join(dir, "inteira.wav");
+  let r;
+  for (let tentativa = 1; tentativa <= 3; tentativa++) {
+    r = spawnSync(process.execPath, [process.env.VOZ_SCRIPT || path.join(here, "voz.mjs"), locutor, full, textos.join("\n\n")], { encoding: "utf8", timeout: 240000 });
+    if (r.status === 0 || !/RESOURCE_EXHAUSTED|"code":\s*429|retryDelay/.test(r.stderr || "")) break;
+    const pedido = Number((r.stderr.match(/"retryDelay":"(\d+)/) || [])[1] || 60);
+    if (pedido > 300) { console.warn("locução: a cota DIÁRIA do Gemini acabou"); return null; }
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, Math.min(90, pedido + 3) * 1000);
+  }
+  if (r.status !== 0) { console.warn(`locução inteira falhou: ${(r.stderr || "").slice(-200)}`); return null; }
+  const sd = spawnSync(ffmpeg, ["-i", full, "-af", "silencedetect=noise=-38dB:d=0.28", "-f", "null", "-"], { encoding: "utf8" }).stderr;
+  const ini = [...sd.matchAll(/silence_start: ([\d.]+)/g)].map((m) => +m[1]), fim = [...sd.matchAll(/silence_end: ([\d.]+)/g)].map((m) => +m[1]);
+  const totalSeg = Number((spawnSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", full], { encoding: "utf8" }).stdout || "0").trim());
+  const pausas = ini.map((a, k) => ({ a, b: fim[k] ?? totalSeg })).filter((p) => p.a > 0.3 && p.b < totalSeg - 0.3);
+  if (pausas.length < textos.length - 1) { console.warn(`locução inteira: ${pausas.length} pausas para ${textos.length} cenas, vou por cena`); return null; }
+  const cortes = pausas.sort((x, y) => (y.b - y.a) - (x.b - x.a)).slice(0, textos.length - 1).sort((x, y) => x.a - y.a);
+  const limites = [0, ...cortes.map((p) => (p.a + p.b) / 2), totalSeg];
+  // confere: cada trecho tem que ter duração coerente com o tamanho do texto (senão o corte caiu no meio de uma frase)
+  const chars = textos.map((t) => t.length), seg = limites.slice(1).map((b, k) => b - limites[k]);
+  const ritmo = seg.map((d, k) => d / chars[k]), med = ritmo.reduce((a, b) => a + b, 0) / ritmo.length;
+  if (ritmo.some((x) => x < med * 0.45 || x > med * 2.2)) { console.warn(`locução inteira: cortes incoerentes (${seg.map((d) => d.toFixed(1)).join(" ")}), vou por cena`); return null; }
+  for (let k = 0; k < textos.length; k++) {
+    const c = spawnSync(ffmpeg, ["-y", "-loglevel", "error", "-i", full, "-ss", String(limites[k]), "-to", String(limites[k + 1]), path.join(dir, `voz-${k + 1}.wav`)]);
+    if (c.status !== 0) return null;
+  }
+  console.log(`locução inteira em 1 pedido, cortada em ${textos.length} trechos: ${seg.map((d) => d.toFixed(1)).join(" ")} s`);
+  return dir;
+}
+
 export function narrate(post, out, ffmpeg, id = "") {
   const cache = process.env.REEL_VOZ_DIR || (id && vozGuardada(id));
   const textos = falas(post), nada = () => textos.map(() => null);
@@ -298,12 +332,16 @@ export function narrate(post, out, ffmpeg, id = "") {
   if (post.voz === false || process.env.REEL_SEM_VOZ || (!process.env.GEMINI_API_KEY && !temCache)) return nada();
   if (temCache) console.log(`locução guardada em ${cache}`);
   const here = path.dirname(new URL(import.meta.url).pathname);
+  // Sem voz guardada: pede a locução INTEIRA num pedido só (1 da cota diária por reel, não 1 por cena) e corta nas pausas.
+  // Se o corte não bater com o número de cenas, cai no jeito antigo (um pedido por cena).
+  let cacheEfetivo = temCache ? cache : null;
+  if (!temCache) cacheEfetivo = vozDeUmaVez(textos, out, ffmpeg, post.locutor || "Alnilam", here);
   const res = [];
   for (let i = 0; i < textos.length; i++) {
     const wav = path.join(out, `voz-${i + 1}.wav`), raw = `${wav}.f32`;
     // O plano grátis do Gemini limita pedidos por minuto: quando ele manda esperar, espera o tempo pedido e tenta de novo
     let r = { status: 0 };
-    if (temCache) copyFileSync(arquivoVoz(cache, i), wav); // o ffmpeg lê pelo conteúdo, não pela extensão
+    if (cacheEfetivo) copyFileSync(arquivoVoz(cacheEfetivo, i), wav); // o ffmpeg lê pelo conteúdo, não pela extensão
     else for (let tentativa = 1; tentativa <= 4; tentativa++) {
       r = spawnSync(process.execPath, [path.join(here, "voz.mjs"), post.locutor || "Alnilam", wav, textos[i]], { encoding: "utf8", timeout: 120000 });
       if (r.status === 0 || !/RESOURCE_EXHAUSTED|"code":\s*429|retryDelay/.test(r.stderr || "")) break;

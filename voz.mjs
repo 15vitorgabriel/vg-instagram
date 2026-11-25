@@ -20,7 +20,8 @@ if (existsSync(envFile)) {
 
 const MODEL = process.env.TTS_MODEL || "gemini-3.8-flash-tts";
 const DIRECAO = "Locutor profissional de comercial de TV brasileiro. Português do Brasil, sotaque neutro de São Paulo, nunca de Portugal. " +
-  "Voz masculina, grave e confiante, dicção limpa, ritmo calmo e marcante, com um leve sorriso na voz. Sem exageros, sem tom de vendedor.";
+  "Voz masculina, grave e confiante, dicção limpa, ritmo calmo e marcante, com um leve sorriso na voz. Sem exageros, sem tom de vendedor. " +
+  "Entre um parágrafo e outro, faça uma pausa clara de um segundo.";
 
 const [voice, out, text] = process.argv.slice(2);
 if (!voice || !out || !text) throw new Error('uso: node voz.mjs <Voz> <saida.wav> "texto"');
