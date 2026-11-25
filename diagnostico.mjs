@@ -37,3 +37,7 @@ const quem = await get("me", { fields: "id,name" });
 console.log("TOKEN_DE", JSON.stringify(quem.erro ? quem : { tipo: quem.name ? "usuário ou página" : "?", nome: quem.name }));
 const contas = await get("me/accounts", { fields: "id,name,tasks,instagram_business_account" });
 console.log("PAGINAS", JSON.stringify(contas.erro ? contas : contas.data?.map((p) => ({ id: p.id, nome: p.name, tarefas: p.tasks, ig: p.instagram_business_account?.id === IG_USER_ID ? "é a @_vgtecnologia" : p.instagram_business_account?.id ? "outra conta" : "sem IG" }))));
+
+// de qual app é o token (para gerar o token novo no mesmo app)
+const dbg = await get("debug_token", { input_token: IG_ACCESS_TOKEN });
+console.log("APP_DO_TOKEN", JSON.stringify(dbg.erro ? dbg : { app: dbg.data?.application, app_id: dbg.data?.app_id, tipo: dbg.data?.type, expira: dbg.data?.expires_at ? new Date(dbg.data.expires_at * 1000).toISOString() : "não expira" }));
