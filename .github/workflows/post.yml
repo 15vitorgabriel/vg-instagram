@@ -125,7 +125,7 @@ jobs:
             node publish.mjs "$id" ${{ inputs.check && '--check' || '' }}
           done
 
-      # Mesmo post na Página do Facebook. Só roda com os secrets FB_PAGE_ID e FB_PAGE_TOKEN; falha aqui não afeta o Instagram.
+      # Mesmo post na Página do Facebook. Só roda com o secret FB_PAGE_TOKEN (token da Página); falha aqui não afeta o Instagram.
       - name: Publicar no Facebook
         if: steps.ids.outputs.ids != '' && !inputs.check
         continue-on-error: true

@@ -15,7 +15,7 @@ const API = "https://graph.facebook.com/v21.0";
 const { FB_PAGE_ID, FB_PAGE_TOKEN, MEDIA_BASE_URL } = process.env;
 const date = process.argv[2];
 if (!/^\d{4}-\d{2}-\d{2}(-[a-z0-9]+)?$/.test(date ?? "")) throw new Error("uso: node publish-facebook.mjs AAAA-MM-DD[-N]");
-if (!(FB_PAGE_ID && FB_PAGE_TOKEN)) { console.log("Facebook: sem FB_PAGE_ID/FB_PAGE_TOKEN, pulando"); process.exit(0); }
+if (!FB_PAGE_TOKEN) { console.log("Facebook: sem FB_PAGE_TOKEN, pulando"); process.exit(0); }
 if (!MEDIA_BASE_URL) throw new Error("falta MEDIA_BASE_URL");
 
 const logFile = path.join(here, "facebook.json");
@@ -33,26 +33,32 @@ async function call(endpoint, params = {}, { url } = {}) {
   if (!res.ok || body.error) throw new Error(`${endpoint}: ${JSON.stringify(body.error ?? body)}`);
   return body;
 }
-const fotoOculta = async (url) => (await call(`${FB_PAGE_ID}/photos`, { url, published: "false" })).id;
+// o ID da Página vem do próprio token (token de Página responde /me com a Página); FB_PAGE_ID só confere
+const eu = await (await fetch(`${API}/me?fields=id,name&metadata=1`, { headers: { Authorization: `Bearer ${FB_PAGE_TOKEN}` } })).json();
+if (eu.error) throw new Error(`token do Facebook: ${JSON.stringify(eu.error)}`);
+if (eu.metadata?.type !== "page") throw new Error(`FB_PAGE_TOKEN não é token de Página (é ${eu.metadata?.type} ${eu.name})`);
+const PAGE = eu.id;
+if (FB_PAGE_ID && FB_PAGE_ID !== PAGE) console.warn(`Facebook: FB_PAGE_ID não bate com a Página do token (${eu.name}); usando a do token`);
+const fotoOculta = async (url) => (await call(`${PAGE}/photos`, { url, published: "false" })).id;
 
 let id;
 if (post.story) {
   const ids = [];
-  for (const url of images) ids.push((await call(`${FB_PAGE_ID}/photo_stories`, { photo_id: await fotoOculta(url) })).post_id);
+  for (const url of images) ids.push((await call(`${PAGE}/photo_stories`, { photo_id: await fotoOculta(url) })).post_id);
   id = ids.join(",");
 } else if (video) {
   // Reels da Página: abre o envio, manda o vídeo pela URL pública e publica com a legenda
-  const { video_id } = await call(`${FB_PAGE_ID}/video_reels`, { upload_phase: "start" });
+  const { video_id } = await call(`${PAGE}/video_reels`, { upload_phase: "start" });
   const up = await fetch(`https://rupload.facebook.com/video-upload/v21.0/${video_id}`, { method: "POST", headers: { Authorization: `OAuth ${FB_PAGE_TOKEN}`, file_url: video } });
   if (!up.ok) throw new Error(`envio do vídeo: ${await up.text()}`);
-  await call(`${FB_PAGE_ID}/video_reels`, { video_id, upload_phase: "finish", video_state: "PUBLISHED", description: post.caption });
+  await call(`${PAGE}/video_reels`, { video_id, upload_phase: "finish", video_state: "PUBLISHED", description: post.caption });
   id = video_id;
 } else if (images.length === 1) {
-  id = (await call(`${FB_PAGE_ID}/photos`, { url: images[0], message: post.caption })).post_id;
+  id = (await call(`${PAGE}/photos`, { url: images[0], message: post.caption })).post_id;
 } else {
   const params = { message: post.caption };
   (await Promise.all(images.map(fotoOculta))).forEach((m, i) => (params[`attached_media[${i}]`] = JSON.stringify({ media_fbid: m })));
-  id = (await call(`${FB_PAGE_ID}/feed`, params)).id;
+  id = (await call(`${PAGE}/feed`, params)).id;
 }
 log[date] = { id, at: new Date().toISOString() };
 writeFileSync(logFile, JSON.stringify(log, null, 2) + "\n");

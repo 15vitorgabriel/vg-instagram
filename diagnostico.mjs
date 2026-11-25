@@ -54,8 +54,14 @@ if (FB_PAGE_ID && FB_PAGE_TOKEN) {
   };
   const p = await pg(FB_PAGE_ID, { fields: "id,name,followers_count,link,instagram_business_account" });
   console.log("FB_PAGINA", JSON.stringify(p.erro ? p : { nome: p.name, seguidores: p.followers_count, link: p.link, ig_ligado: p.instagram_business_account?.id === IG_USER_ID ? "sim, @_vgtecnologia" : p.instagram_business_account?.id ? "outra conta" : "não" }));
-  const eu = await pg("me", { fields: "id,name" });
-  console.log("FB_TOKEN_E_DA_PAGINA", JSON.stringify(eu.erro ? eu : eu.id === FB_PAGE_ID ? "sim" : `não (é de ${eu.name})`));
+  const eu = await pg("me", { fields: "id,name", metadata: "1" });
+  console.log("FB_TOKEN", JSON.stringify(eu.erro ? eu : { de: eu.name, tipo: eu.metadata?.type, id_bate_com_FB_PAGE_ID: eu.id === FB_PAGE_ID }));
+  if (!eu.erro && eu.metadata?.type === "page") {
+    const p2 = await pg(eu.id, { fields: "name,followers_count,link,instagram_business_account" });
+    console.log("FB_PAGINA_DO_TOKEN", JSON.stringify(p2.erro ? p2 : { nome: p2.name, seguidores: p2.followers_count, link: p2.link, ig_ligado: p2.instagram_business_account?.id === IG_USER_ID ? "sim, @_vgtecnologia" : p2.instagram_business_account?.id ? "outra conta" : "não" }));
+    const perm = await pg(`${eu.id}/feed`, { limit: "1", fields: "id" });
+    console.log("FB_LE_O_FEED", JSON.stringify(perm.erro ? perm : "sim"));
+  }
   // com o token da Página, os números de visualização do Instagram também ficam acessíveis
   const m = await get(`${IG_USER_ID}/media`, { fields: "id,timestamp", limit: "3" });
   for (const x of m.data ?? []) {
