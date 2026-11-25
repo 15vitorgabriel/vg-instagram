@@ -29,3 +29,11 @@ for (const m of media.data ?? []) {
 
 const ins = await get(`${IG_USER_ID}/insights`, { metric: "reach,views,profile_views,follower_count", period: "day", metric_type: "total_value" });
 console.log("CONTA_INSIGHTS", JSON.stringify(ins.erro ? ins : ins.data?.map(d => [d.name, d.total_value?.value])));
+
+// Facebook: que permissões o token tem e quais Páginas ele enxerga (só id e nome; nunca o token da Página)
+const perms = await get("me/permissions");
+console.log("PERMISSOES", JSON.stringify(perms.erro ? perms : perms.data?.filter((p) => p.status === "granted").map((p) => p.permission)));
+const quem = await get("me", { fields: "id,name" });
+console.log("TOKEN_DE", JSON.stringify(quem.erro ? quem : { tipo: quem.name ? "usuário ou página" : "?", nome: quem.name }));
+const contas = await get("me/accounts", { fields: "id,name,tasks,instagram_business_account" });
+console.log("PAGINAS", JSON.stringify(contas.erro ? contas : contas.data?.map((p) => ({ id: p.id, nome: p.name, tarefas: p.tasks, ig: p.instagram_business_account?.id === IG_USER_ID ? "é a @_vgtecnologia" : p.instagram_business_account?.id ? "outra conta" : "sem IG" }))));
