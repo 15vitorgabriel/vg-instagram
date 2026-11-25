@@ -201,7 +201,7 @@ console.log(`${total} lâmina(s) em ${path.relative(process.cwd(), out)}`);
 // Reel: vídeo animado (reel.mjs) com as mesmas lâminas; a primeira lâmina estática (1.jpg) vira a capa
 // Reel animado do zero (campo "motion": nome do roteiro em motion/), com a mesma voz e trilha
 if (post.motion) {
-  const m = spawnSync(process.execPath, [path.join(here, "motion", `${post.motion}.mjs`)], { stdio: "inherit", env: { ...process.env, MOTION_OUT: out, BROWSER } });
+  const m = spawnSync(process.execPath, [path.join(here, "motion", `${post.motion}.mjs`)], { stdio: "inherit", env: { ...process.env, MOTION_OUT: out, MOTION_ID: date, BROWSER } });
   if (m.status !== 0) throw new Error(`motion/${post.motion}.mjs falhou`);
   console.log(`reel animado em ${path.relative(process.cwd(), out)}/reel.mp4`);
 } else if (post.reel) {

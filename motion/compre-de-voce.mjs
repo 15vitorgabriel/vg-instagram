@@ -11,7 +11,8 @@ import { ic, appIcon, tile, status, homeBar, css, waWallpaper } from "./kit.mjs"
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(here, "..");
-const ID = "2026-11-26";
+// o render.mjs passa o ID do post (o reel saiu de 26/11 para 25/11 às 18h)
+const ID = process.env.MOTION_ID || "2026-11-25-2";
 const W = 1080, H = 1920, FPS = 30;
 const post = JSON.parse(readFileSync(path.join(root, "posts", `${ID}.json`), "utf8"));
 // MOTION_OUT: chamado pelo render.mjs, grava direto em out/ID (reel.mp4 e a capa 1.jpg)
