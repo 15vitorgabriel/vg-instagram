@@ -41,3 +41,25 @@ console.log("PAGINAS", JSON.stringify(contas.erro ? contas : contas.data?.map((p
 // de qual app é o token (para gerar o token novo no mesmo app)
 const dbg = await get("debug_token", { input_token: IG_ACCESS_TOKEN });
 console.log("APP_DO_TOKEN", JSON.stringify(dbg.erro ? dbg : { app: dbg.data?.application, app_id: dbg.data?.app_id, tipo: dbg.data?.type, expira: dbg.data?.expires_at ? new Date(dbg.data.expires_at * 1000).toISOString() : "não expira" }));
+
+// Página do Facebook (secrets FB_PAGE_ID e FB_PAGE_TOKEN): confere acesso sem publicar nada
+const { FB_PAGE_ID, FB_PAGE_TOKEN } = process.env;
+if (FB_PAGE_ID && FB_PAGE_TOKEN) {
+  const pg = async (endpoint, params = {}) => {
+    const url = new URL(`${API}/${endpoint}`);
+    for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${FB_PAGE_TOKEN}` } });
+    const body = await res.json();
+    return res.ok ? body : { erro: body.error?.message ?? JSON.stringify(body) };
+  };
+  const p = await pg(FB_PAGE_ID, { fields: "id,name,followers_count,link,instagram_business_account" });
+  console.log("FB_PAGINA", JSON.stringify(p.erro ? p : { nome: p.name, seguidores: p.followers_count, link: p.link, ig_ligado: p.instagram_business_account?.id === IG_USER_ID ? "sim, @_vgtecnologia" : p.instagram_business_account?.id ? "outra conta" : "não" }));
+  const eu = await pg("me", { fields: "id,name" });
+  console.log("FB_TOKEN_E_DA_PAGINA", JSON.stringify(eu.erro ? eu : eu.id === FB_PAGE_ID ? "sim" : `não (é de ${eu.name})`));
+  // com o token da Página, os números de visualização do Instagram também ficam acessíveis
+  const m = await get(`${IG_USER_ID}/media`, { fields: "id,timestamp", limit: "3" });
+  for (const x of m.data ?? []) {
+    const v = await pg(`${x.id}/insights`, { metric: "views,reach" });
+    console.log("IG_NUMEROS", x.timestamp, JSON.stringify(v.erro ? v : v.data?.map((d) => [d.name, d.values?.[0]?.value ?? d.total_value?.value])));
+  }
+} else console.log("FB: secrets FB_PAGE_ID/FB_PAGE_TOKEN não cadastrados");
