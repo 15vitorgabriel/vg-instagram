@@ -1,0 +1,34 @@
+# Locução avulsa (vídeos de clientes da VG): gera a voz com o mesmo Gemini TTS dos reels.
+# Só roda no branch voz-avulsa, quando muda avulsa/pedido.txt; o áudio volta em avulsa/voz.wav.
+# A voz (ex.: Charon) fica em avulsa/voz.txt. Gasta 1 fala da cota diária do Gemini.
+name: Locução avulsa
+
+on:
+  push:
+    branches: [voz-avulsa]
+    paths: ["avulsa/pedido.txt"]
+
+permissions:
+  contents: write
+
+concurrency: locucao
+
+jobs:
+  voz:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Gerar a locução
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+          node voz.mjs "$(head -1 avulsa/voz.txt)" avulsa/voz.wav "$(cat avulsa/pedido.txt)"
+          git config user.name "vg-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add avulsa/voz.wav
+          git commit -m "Locução avulsa gerada"
+          for i in 1 2 3; do git pull --rebase -q origin voz-avulsa && git push origin HEAD:voz-avulsa && break; sleep 5; done
