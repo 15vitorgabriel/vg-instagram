@@ -310,13 +310,31 @@ function vozDeUmaVez(textos, out, ffmpeg, locutor, here) {
   const ini = [...sd.matchAll(/silence_start: ([\d.]+)/g)].map((m) => +m[1]), fim = [...sd.matchAll(/silence_end: ([\d.]+)/g)].map((m) => +m[1]);
   const totalSeg = Number((spawnSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", full], { encoding: "utf8" }).stdout || "0").trim());
   const pausas = ini.map((a, k) => ({ a, b: fim[k] ?? totalSeg })).filter((p) => p.a > 0.3 && p.b < totalSeg - 0.3);
-  if (pausas.length < textos.length - 1) { console.warn(`locução inteira: ${pausas.length} pausas para ${textos.length} cenas, vou por cena`); return null; }
-  const cortes = pausas.sort((x, y) => (y.b - y.a) - (x.b - x.a)).slice(0, textos.length - 1).sort((x, y) => x.a - y.a);
-  const limites = [0, ...cortes.map((p) => (p.a + p.b) / 2), totalSeg];
+  const N = textos.length;
+  if (pausas.length < N - 1) { console.warn(`locução inteira: ${pausas.length} pausas para ${N} cenas, vou por cena`); return null; }
+  // O locutor também pausa DENTRO das frases (vírgula, dois-pontos). Então não basta pegar as maiores pausas: escolhe as
+  // N-1 pausas que dividem o áudio mais perto da proporção do tamanho de cada texto, preferindo pausas longas (programação dinâmica).
+  const chars = textos.map((t) => t.length), somaC = chars.reduce((a, b) => a + b, 0);
+  const esperado = chars.map((c) => (totalSeg * c) / somaC);
+  const meio = pausas.map((p) => (p.a + p.b) / 2), tam = pausas.map((p) => p.b - p.a);
+  const custoSeg = (d, k) => ((d - esperado[k]) / esperado[k]) ** 2;
+  const custoPausa = (j) => 0.6 * (1 - Math.min(1, tam[j] / 0.9));
+  const M = pausas.length, INF = 1e9;
+  const dp = Array.from({ length: N - 1 }, () => new Array(M).fill(INF)), de = Array.from({ length: N - 1 }, () => new Array(M).fill(-1));
+  for (let j = 0; j < M; j++) dp[0][j] = custoSeg(meio[j], 0) + custoPausa(j);
+  for (let k = 1; k < N - 1; k++) for (let j = 0; j < M; j++) for (let q = 0; q < j; q++) {
+    if (dp[k - 1][q] >= INF) continue;
+    const c = dp[k - 1][q] + custoSeg(meio[j] - meio[q], k) + custoPausa(j);
+    if (c < dp[k][j]) { dp[k][j] = c; de[k][j] = q; }
+  }
+  let melhor = INF, jf = -1;
+  for (let j = 0; j < M; j++) { const c = dp[N - 2][j] + custoSeg(totalSeg - meio[j], N - 1); if (c < melhor) { melhor = c; jf = j; } }
+  if (jf < 0) return null;
+  const esc = [jf]; for (let k = N - 2; k > 0; k--) esc.unshift(de[k][esc[0]]);
+  const limites = [0, ...esc.map((j) => meio[j]), totalSeg];
   // confere: cada trecho tem que ter duração coerente com o tamanho do texto (senão o corte caiu no meio de uma frase)
-  const chars = textos.map((t) => t.length), seg = limites.slice(1).map((b, k) => b - limites[k]);
-  const ritmo = seg.map((d, k) => d / chars[k]), med = ritmo.reduce((a, b) => a + b, 0) / ritmo.length;
-  if (ritmo.some((x) => x < med * 0.45 || x > med * 2.2)) { console.warn(`locução inteira: cortes incoerentes (${seg.map((d) => d.toFixed(1)).join(" ")}), vou por cena`); return null; }
+  const seg = limites.slice(1).map((b, k) => b - limites[k]);
+  if (seg.some((d, k) => d < esperado[k] * 0.55 || d > esperado[k] * 1.8)) { console.warn(`locução inteira: cortes incoerentes (${seg.map((d) => d.toFixed(1)).join(" ")}), vou por cena`); return null; }
   for (let k = 0; k < textos.length; k++) {
     const c = spawnSync(ffmpeg, ["-y", "-loglevel", "error", "-i", full, "-ss", String(limites[k]), "-to", String(limites[k + 1]), path.join(dir, `voz-${k + 1}.wav`)]);
     if (c.status !== 0) return null;
