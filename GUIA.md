@@ -33,19 +33,22 @@ Este guia é a fonte da verdade para quem escreve os posts (a rotina semanal do 
 5. Uma ideia por post. Fale com o dono de negócio, direto, frases curtas, concreto. Tom de agência séria, não de vendedor.
 6. Toda legenda termina com o CTA: "Orçamento pelo WhatsApp, link na bio." (ou variação curta) e 3 a 5 hashtags em minúsculas, incluindo #vgtecnologia.
 
-## Ritmo da semana (12h, todos os dias)
+## Ritmo da semana (4 posts, 12h)
+
+**Decisão do dono (25/11): não postamos mais todo dia.** São 4 posts por semana. Mesmo que o pedido da rotina fale em "7 dias", escreva só estes 4 arquivos por semana:
 
 | Dia | Formato | Linha |
 |---|---|---|
-| Seg | carrossel (5–7 lâminas) | erro comum / o que o cliente procura |
-| Ter | imagem única (statement) | uma afirmação forte |
-| Qua | carrossel | serviço explicado (site, sistema, automação, consultoria) |
-| Qui | carrossel | passo a passo / checklist prático |
-| Sex | imagem única | bastidor, diferencial ou mito |
-| Sáb | imagem única | dica rápida |
-| Dom | carrossel | portfólio por dentro (alternar Estação Fitness, Randi, Hudema) |
+| Seg | **reel** animado | erro comum / o que o cliente procura |
+| Qua | carrossel (5–7 lâminas) | serviço explicado (site, sistema, automação, consultoria, suporte) ou portfólio por dentro |
+| Qui | **reel** animado | passo a passo / checklist prático |
+| Sáb | imagem única (statement) | dica rápida |
 
-**Reels (alcance para quem ainda não segue)**: a conta começou do zero, e post de feed só chega em quem segue; Reels chega em quem não segue. Toda semana, o carrossel de **segunda** e o de **quinta** saem como reel: mesmo JSON de carrossel, com `"reel": true`. O render (`reel.mjs`) gera `out/ID/reel.mp4` animado: palavras entrando uma a uma, marca-texto pintando, número com impacto, barra de progresso, fundo em movimento, transições, CTA com fundo amarelo e botão de WhatsApp, e trilha eletrônica própria sincronizada com as trocas de cena. Com o secret `GEMINI_API_KEY` no GitHub, cada cena ganha locução (o texto da lâmina lido em voz alta) e a música abaixa por baixo da fala; por isso escreva as lâminas de reel para serem ditas em voz alta também. A locução é gerada com antecedência (o post.yml, depois de publicar, prepara a do próximo reel da fila e guarda em `assets/voz/ID/`): o plano grátis do Gemini só dá 10 falas por dia e cada reel usa ~6, então **não mude o texto de um reel depois que a locução dele foi guardada** (se mudar, apague a pasta `assets/voz/ID` para ela ser refeita). Campo opcional `voz: false` desliga a locução de um reel; `locutor` troca a voz (padrão Alnilam, a mesma do reel de lançamento). A primeira lâmina estática vira a capa. Num reel, capa com título curto e forte (é o que segura o dedo nos primeiros segundos), 3 a 5 lâminas de conteúdo com texto enxuto, CTA no fim. Sem lâmina `shot` em reel.
+Contagem regressiva, "último dia" e lembretes de campanha vão em **story** (`"story": true`), não no feed. Dois posts no mesmo dia só em data comercial forte (ex.: o dia da Black Friday), o segundo às 18h.
+
+**Banco de conteúdo (`banco/`)**: posts bons que saíram da fila ou que já foram ao ar para ninguém (a conta começou com 0 seguidores). Antes de criar um tema do zero, veja se algum do banco vira reel animado. Ao usar um, mova o arquivo para `posts/` com a data nova e refaça no formato atual. Também valem para reaproveitar como reel os posts já publicados e arquivados pelo dono: 17/11 (o cliente decide antes de abrir o WhatsApp), 18/11 (Instagram é vitrine, site é a loja), 19/11 (o WhatsApp pode atender sozinho), 20/11 (sua empresa ainda roda no caderno?), 21/11 (site lento no celular perde o cliente) e 22/11 (por dentro do site da Randi; conferir no ar, agora tem app de agendamento com pontos).
+
+**Reels (alcance para quem ainda não segue)**: a conta começou do zero, e post de feed só chega em quem segue; Reels chega em quem não segue. Toda semana, **segunda** e **quinta** são reel: JSON de carrossel com `"reel": true` e `"motion": "NOME"` (o roteiro animado em `motion/NOME.mjs`, feito com o motor `motion/motor.mjs` e o kit `motion/kit.mjs`; veja `motion/compre-de-voce.mjs` e `motion/quem-somos.mjs` como modelo). O render (`reel.mjs`) gera `out/ID/reel.mp4` animado: palavras entrando uma a uma, marca-texto pintando, número com impacto, barra de progresso, fundo em movimento, transições, CTA com fundo amarelo e botão de WhatsApp, e trilha eletrônica própria sincronizada com as trocas de cena. Com o secret `GEMINI_API_KEY` no GitHub, cada cena ganha locução (o texto da lâmina lido em voz alta) e a música abaixa por baixo da fala; por isso escreva as lâminas de reel para serem ditas em voz alta também. A locução é gerada com antecedência (o post.yml, depois de publicar, prepara a do próximo reel da fila e guarda em `assets/voz/ID/`): o plano grátis do Gemini só dá 10 falas por dia e cada reel usa ~6, então **não mude o texto de um reel depois que a locução dele foi guardada** (se mudar, apague a pasta `assets/voz/ID` para ela ser refeita). Campo opcional `voz: false` desliga a locução de um reel; `locutor` troca a voz (padrão Alnilam, a mesma do reel de lançamento). A primeira lâmina estática vira a capa. Num reel, capa com título curto e forte (é o que segura o dedo nos primeiros segundos), 3 a 5 lâminas de conteúdo com texto enxuto, CTA no fim. Sem lâmina `shot` em reel.
 
 **Visual dos reels (pedido do dono):** estilo animado do zero (`motion/`), com telas de app detalhadas (kit em `motion/kit.mjs`), cerca de 1 minuto, ritmo calmo para dar tempo de ler e olhar. **Fundo sempre liso**: nada de degradê redondo, brilho circular ou anéis (no vídeo eles viram círculos visíveis). Sem som na troca de cena. O final não pode parecer botão (vídeo não tem clique): "Fale com a gente no WhatsApp" + "O link está na bio". Todo reel fecha com o logo, "TECNOLOGIA" embaixo e o slogan "Sua empresa no próximo nível." escrito na tela.
 
