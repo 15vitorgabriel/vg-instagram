@@ -188,6 +188,7 @@ const finale = `
     <img class="logo" src="../../assets/logo.png" style="animation:${A("logoin", 0.9, c6 + 1.0, "cubic-bezier(.2,1.3,.4,1)")}">
     <div class="tec" style="animation:${A("rise", 0.6, c6 + 1.4)}">TECNOLOGIA</div>
     <div class="fh">${"Travou em algum".split(" ").map((w, k) => `<span class="w" style="animation:${A("word", 0.6, c6 + 1.7 + k * 0.07)}">${w}</span>`).join(" ")} <span class="w y" style="animation:${A("word", 0.6, c6 + 1.95)}">passo?</span></div>
+    <div class="slogan" style="animation:${A("rise", 0.9, c6 + Math.max(4.2, dur[5] - 3))}">Sua empresa no <b>próximo nível.</b></div>
     <div class="ctaw" style="animation:${A("rise", 0.7, c6 + 2.6)}"><div class="walinha"><span class="walogo">${ic.whatsapp}</span><span>Fale com a gente<br>no <b>WhatsApp</b></span></div>
       <div class="bio" style="animation:${A("rise", 0.6, c6 + 3.4)}"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>O link está na bio</div></div>
   </div>`;
@@ -248,11 +249,13 @@ ${css}
 .final { position: absolute; inset: 0; visibility: hidden; }
 .pt { position: absolute; left: 540px; top: 690px; width: 7px; height: 7px; border-radius: 50%; background: var(--y); opacity: 0; }
 @keyframes converge { 0% { opacity: 0; transform: translate(var(--x), var(--y)) } 30% { opacity: .9 } 100% { opacity: 0; transform: translate(0, 0) scale(.3) } }
-.logo { position: absolute; left: 50%; top: 500px; width: 380px; margin-left: -190px; opacity: 0; filter: drop-shadow(0 18px 40px rgba(255,204,0,.25)); }
+.logo { position: absolute; left: 50%; top: 360px; width: 340px; margin-left: -170px; opacity: 0; filter: drop-shadow(0 18px 40px rgba(255,204,0,.25)); }
 @keyframes logoin { from { opacity: 0; transform: scale(.4) rotateY(70deg) } to { opacity: 1; transform: none } }
-.tec { position: absolute; left: 0; right: 0; top: 870px; text-align: center; font-size: 30px; letter-spacing: .55em; color: var(--y); font-weight: 600; opacity: 0; }
-.fh { position: absolute; left: 90px; right: 150px; top: 1020px; text-align: center; font-size: 84px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
-.ctaw { position: absolute; left: 90px; right: 150px; top: 1250px; display: flex; flex-direction: column; align-items: center; gap: 34px; opacity: 0; }
+.tec { position: absolute; left: 0; right: 0; top: 670px; text-align: center; font-size: 30px; letter-spacing: .55em; color: var(--y); font-weight: 600; opacity: 0; }
+.fh { position: absolute; left: 90px; right: 150px; top: 790px; text-align: center; font-size: 84px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+.slogan { position: absolute; left: 90px; right: 150px; top: 1340px; text-align: center; font-size: 46px; font-weight: 600; letter-spacing: -.01em; color: #e9e9e9; opacity: 0; }
+.slogan b { color: var(--y); font-weight: 800; }
+.ctaw { position: absolute; left: 90px; right: 150px; top: 1040px; display: flex; flex-direction: column; align-items: center; gap: 34px; opacity: 0; }
 .walinha { display: flex; align-items: center; gap: 26px; font-size: 46px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; color: #f2f2f2; }
 .walinha b { color: #25d366; font-weight: 800; }
 .walogo { width: 104px; height: 104px; border-radius: 50%; background: #25d366; color: #fff; display: grid; place-items: center; flex: none; box-shadow: 0 14px 36px rgba(37,211,102,.3); }
