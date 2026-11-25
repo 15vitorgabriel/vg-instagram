@@ -33,6 +33,8 @@ Este guia é a fonte da verdade para quem escreve os posts (a rotina semanal do 
 5. Uma ideia por post. Fale com o dono de negócio, direto, frases curtas, concreto. Tom de agência séria, não de vendedor.
 6. Toda legenda termina com o CTA: "Orçamento pelo WhatsApp, link na bio." (ou variação curta) e 3 a 5 hashtags em minúsculas, incluindo #vgtecnologia.
 
+Os posts também saem na **Página do Facebook** da VG (mesma imagem/vídeo e legenda), pelo `publish-facebook.mjs`, quando os secrets `FB_PAGE_ID` e `FB_PAGE_TOKEN` estão cadastrados.
+
 ## Ritmo da semana (4 posts, 12h)
 
 **Decisão do dono (25/11): não postamos mais todo dia.** São 4 posts por semana. Mesmo que o pedido da rotina fale em "7 dias", escreva só estes 4 arquivos por semana:

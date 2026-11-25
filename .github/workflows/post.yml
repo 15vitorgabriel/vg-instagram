@@ -125,12 +125,23 @@ jobs:
             node publish.mjs "$id" ${{ inputs.check && '--check' || '' }}
           done
 
+      # Mesmo post na Página do Facebook. Só roda com os secrets FB_PAGE_ID e FB_PAGE_TOKEN; falha aqui não afeta o Instagram.
+      - name: Publicar no Facebook
+        if: steps.ids.outputs.ids != '' && !inputs.check
+        continue-on-error: true
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+          MEDIA_BASE_URL: ${{ steps.pages.outputs.page_url || steps.pages2.outputs.page_url || steps.pages3.outputs.page_url }}
+        run: |
+          for id in ${{ steps.ids.outputs.ids }}; do node publish-facebook.mjs "$id" || echo "Facebook falhou em $id"; done
+
       - name: Salvar registro
         if: always() && steps.ids.outputs.ids != ''
         run: |
           git config user.name "vg-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add published.json 2>/dev/null || true
+          git add published.json 2>/dev/null || true; git add facebook.json 2>/dev/null || true
           git diff --cached --quiet || (git commit -m "Publicado: ${{ steps.ids.outputs.ids }}" && git push)
 
       # Locução do próximo reel, feita com antecedência e guardada no repositório (assets/voz/ID): o plano grátis do
