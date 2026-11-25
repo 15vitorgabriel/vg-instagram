@@ -279,7 +279,7 @@ export function falas(post) {
     const t = (x = "") => plain(x).replace(/\n/g, " ").trim();
     const fim = (x) => (/[.!?]$/.test(x) ? x : x + ".");
     if (s.t === "point") return `${numeros[Number(s.n)] ?? s.n}. ${fim(t(s.title))} ${t(s.body)}`;
-    if (s.t === "cta") return `${fim(t(s.title))} Fale com a gente no WhatsApp. O link está na bio.`;
+    if (s.t === "cta") return `${fim(t(s.title))} Fale com a gente no WhatsApp. O link está na bio. VG Tecnologia, sua empresa no próximo nível.`;
     return [fim(t(s.title)), s.sub ? t(s.sub) : ""].join(" ").trim();
   });
 }
@@ -343,39 +343,94 @@ function vozDeUmaVez(textos, out, ffmpeg, locutor, here) {
   return dir;
 }
 
+// O áudio do Gemini às vezes termina com ~0,2 s de ruído forte (chiado) depois de um silêncio, logo após a última
+// palavra. Procura o último silêncio (>= 80 ms) no fim; se o que vem depois é curto (< 0,45 s) e tem cara de ruído
+// (muitas trocas de sinal), corta ali.
+export function cortaRuidoFinal(v, sr = 44100) {
+  const win = Math.round(sr / 100), n = Math.floor(v.length / win);
+  if (n < 20) return v;
+  let pico = 0; for (const x of v) pico = Math.max(pico, Math.abs(x));
+  const rms = [], zc = [];
+  for (let w = 0; w < n; w++) {
+    let e = 0, z = 0;
+    for (let k = w * win; k < (w + 1) * win; k++) { e += v[k] * v[k]; if (k > w * win && (v[k] < 0) !== (v[k - 1] < 0)) z++; }
+    rms.push(Math.sqrt(e / win)); zc.push(z / win);
+  }
+  const quieto = (w) => rms[w] < pico * 0.02;
+  for (let fim = n - 1; fim >= Math.max(0, n - 70); fim--) {
+    if (!quieto(fim)) continue;
+    let ini = fim; while (ini > 0 && quieto(ini - 1)) ini--;
+    if (fim - ini + 1 < 8) continue; // silêncio de pelo menos 80 ms
+    const cauda = n - 1 - fim;
+    if (cauda === 0) return v;
+    let zm = 0; for (let w = fim + 1; w < n; w++) zm += zc[w]; zm /= cauda;
+    // depois de um silêncio longo (>= 200 ms) nenhuma palavra de verdade vem tão curta no fim; com silêncio menor, exige cara de ruído
+    const silencio = fim - ini + 1;
+    if (cauda * 10 < 450 && (silencio >= 20 || zm > 0.05)) return v.subarray(0, Math.min(v.length, (ini + 5) * win));
+    return v;
+  }
+  return v;
+}
+
+// Quais cenas de um post precisam de voz nova: sem arquivo guardado, ou com texto diferente do que foi gravado
+// (assets/voz/ID/textos.json guarda o texto de cada fala gravada).
+export function vozPendente(post, id) {
+  const textos = falas(post), dir = vozGuardada(id);
+  const gravados = existsSync(path.join(dir, "textos.json")) ? JSON.parse(readFileSync(path.join(dir, "textos.json"), "utf8")) : null;
+  return textos.map((t, i) => !arquivoVoz(dir, i) || (gravados != null && gravados[i] !== t));
+}
+
+// pede uma fala ao Gemini, esperando quando ele limita pedidos por minuto; false se não deu
+function pedeFala(here, locutor, wav, texto) {
+  let r;
+  for (let tentativa = 1; tentativa <= 4; tentativa++) {
+    r = spawnSync(process.execPath, [process.env.VOZ_SCRIPT || path.join(here, "voz.mjs"), locutor, wav, texto], { encoding: "utf8", timeout: 120000 });
+    if (r.status === 0 || !/RESOURCE_EXHAUSTED|"code":\s*429|retryDelay/.test(r.stderr || "")) break;
+    const pedido = Number((r.stderr.match(/"retryDelay":"(\d+)/) || [])[1] || 60);
+    if (pedido > 300) { console.warn("locução: a cota DIÁRIA do Gemini acabou; não adianta esperar"); break; }
+    console.log(`locução: limite por minuto do Gemini, esperando ${Math.min(90, pedido + 3)} s`);
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, Math.min(90, pedido + 3) * 1000);
+  }
+  if (r.status !== 0) console.warn(`locução falhou: ${(r.stderr || "").slice(-300)}`);
+  return r.status === 0;
+}
+
 export function narrate(post, out, ffmpeg, id = "") {
-  const cache = process.env.REEL_VOZ_DIR || (id && vozGuardada(id));
   const textos = falas(post), nada = () => textos.map(() => null);
-  const temCache = !process.env.REEL_SEM_CACHE && cache && textos.every((_, i) => arquivoVoz(cache, i));
-  if (post.voz === false || process.env.REEL_SEM_VOZ || (!process.env.GEMINI_API_KEY && !temCache)) return nada();
-  if (temCache) console.log(`locução guardada em ${cache}`);
-  const here = path.dirname(new URL(import.meta.url).pathname);
-  // Sem voz guardada: pede a locução INTEIRA num pedido só (1 da cota diária por reel, não 1 por cena) e corta nas pausas.
-  // Se o corte não bater com o número de cenas, cai no jeito antigo (um pedido por cena).
-  let cacheEfetivo = temCache ? cache : null;
-  if (!temCache) cacheEfetivo = vozDeUmaVez(textos, out, ffmpeg, post.locutor || "Alnilam", here);
+  if (post.voz === false || process.env.REEL_SEM_VOZ) return nada();
+  const here = path.dirname(new URL(import.meta.url).pathname), locutor = post.locutor || "Alnilam";
+  const cache = process.env.REEL_SEM_CACHE ? null : process.env.REEL_VOZ_DIR || (id && vozGuardada(id));
+  const tem = textos.map((_, i) => !!(cache && arquivoVoz(cache, i)));
+  const pend = cache && id && !process.env.REEL_VOZ_DIR ? vozPendente(post, id) : tem.map((t) => !t);
+  const chave = !!process.env.GEMINI_API_KEY;
+  if (!chave && !tem.every(Boolean)) return nada();
+  if (!pend.some(Boolean)) console.log(`locução guardada em ${cache}`);
+
+  // de onde vem cada fala: arquivo guardado, ou gerada agora. Sem nada guardado: o roteiro inteiro num pedido só
+  // (corta nas pausas); se o corte não bater, ou se só algumas cenas mudaram, um pedido por cena que falta.
+  const origem = textos.map((_, i) => (tem[i] && !pend[i] ? arquivoVoz(cache, i) : null));
+  if (chave && pend.some(Boolean)) {
+    const inteira = pend.every(Boolean) ? vozDeUmaVez(textos, out, ffmpeg, locutor, here) : null;
+    for (let i = 0; i < textos.length; i++) {
+      if (!pend[i]) continue;
+      if (inteira) { origem[i] = path.join(inteira, `voz-${i + 1}.wav`); continue; }
+      const nova = path.join(out, `nova-${i + 1}.wav`);
+      if (pedeFala(here, locutor, nova, textos[i])) origem[i] = nova;
+      else if (tem[i]) { console.warn(`cena ${i + 1}: fica a fala antiga (texto mudou, mas não deu para gravar de novo)`); origem[i] = arquivoVoz(cache, i); }
+      else { console.warn(`cena ${i + 1} sem locução; o reel sai só com a trilha`); return nada(); }
+    }
+  } else if (pend.some(Boolean)) for (let i = 0; i < textos.length; i++) if (!origem[i]) origem[i] = arquivoVoz(cache, i); // sem chave: usa o que tem
+
   const res = [];
   for (let i = 0; i < textos.length; i++) {
     const wav = path.join(out, `voz-${i + 1}.wav`), raw = `${wav}.f32`;
-    // O plano grátis do Gemini limita pedidos por minuto: quando ele manda esperar, espera o tempo pedido e tenta de novo
-    let r = { status: 0 };
-    if (cacheEfetivo) copyFileSync(arquivoVoz(cacheEfetivo, i), wav); // o ffmpeg lê pelo conteúdo, não pela extensão
-    else for (let tentativa = 1; tentativa <= 4; tentativa++) {
-      r = spawnSync(process.execPath, [path.join(here, "voz.mjs"), post.locutor || "Alnilam", wav, textos[i]], { encoding: "utf8", timeout: 120000 });
-      if (r.status === 0 || !/RESOURCE_EXHAUSTED|"code":\s*429|retryDelay/.test(r.stderr || "")) break;
-      const pedido = Number((r.stderr.match(/"retryDelay":"(\d+)/) || [])[1] || 60);
-      if (pedido > 300) { console.warn("locução: a cota DIÁRIA do Gemini acabou; não adianta esperar"); break; }
-      const espera = Math.min(90, pedido + 3);
-      console.log(`locução: limite por minuto do Gemini na cena ${i + 1}, esperando ${espera} s`);
-      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, espera * 1000);
-    }
-    if (r.status !== 0) { console.warn(`locução falhou na cena ${i + 1}, o reel sai só com a trilha: ${(r.stderr || "").slice(-300)}`); return nada(); }
+    copyFileSync(origem[i], wav); // o ffmpeg lê pelo conteúdo, não pela extensão
     // corta o silêncio do começo e converte para float 44,1 kHz mono
     const c = spawnSync(ffmpeg, ["-y", "-loglevel", "error", "-i", wav, "-af", "highpass=f=80,lowpass=f=9500,deesser=i=0.5:m=0.5:f=0.5,silenceremove=start_periods=1:start_threshold=-45dB,loudnorm=I=-18:TP=-4",
       "-ar", "44100", "-ac", "1", "-f", "f32le", raw]);
     if (c.status !== 0) throw new Error(`ffmpeg na locução: ${c.stderr}`);
     const b = readFileSync(raw);
-    const v = new Float32Array(b.buffer, b.byteOffset, b.length / 4).slice();
+    const v = cortaRuidoFinal(new Float32Array(b.buffer, b.byteOffset, b.length / 4).slice());
     // fade de 10 ms na entrada e 120 ms na saída: sem estalo quando a fala começa ou termina
     const fi = Math.min(v.length, 441), fo = Math.min(v.length, 5292);
     for (let k = 0; k < fi; k++) v[k] *= k / fi;

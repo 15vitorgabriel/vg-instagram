@@ -158,7 +158,7 @@ export const css = `
 .cc .wide svg { width: 34px; height: 34px; }
 .tap { position: absolute; width: 110px; height: 110px; border-radius: 50%; background: rgba(255,255,255,.55); opacity: 0; z-index: 30; pointer-events: none; }
 .tap.esc { background: rgba(0,0,0,.28); }
-@keyframes tap { 0% { opacity: .7; transform: scale(.35) } 100% { opacity: 0; transform: scale(1.5) } }
+@keyframes tap { 0% { opacity: 0; transform: scale(.35) } 6% { opacity: .7; transform: scale(.4) } 100% { opacity: 0; transform: scale(1.5) } }
 
 /* Safari */
 .saf { position: absolute; inset: 0; background: #fff; color: #111; overflow: hidden; z-index: 27; }

@@ -3,11 +3,11 @@
 //   node locucao.mjs 2026-11-26      -> gera a locução desse post
 //   node locucao.mjs --proximo       -> gera a do próximo reel da fila que ainda não tem voz guardada
 //   node locucao.mjs --precisa       -> só diz (código de saída 0) se algum reel da fila precisa de locução
-import { readFileSync, readdirSync, mkdirSync, existsSync, rmSync } from "node:fs";
+import { readFileSync, readdirSync, mkdirSync, existsSync, rmSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { narrate, falas, vozGuardada } from "./reel.mjs";
+import { narrate, falas, vozGuardada, vozPendente } from "./reel.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const ffmpeg = process.env.FFMPEG || "ffmpeg";
@@ -17,7 +17,7 @@ const hoje = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Pau
 let id = process.argv[2];
 if (id === "--proximo" || id === "--precisa") {
   id = readdirSync(path.join(here, "posts")).map((f) => f.slice(0, -5)).sort()
-    .find((p) => p.slice(0, 10) >= hoje && ler(p).reel && ler(p).voz !== false && !existsSync(path.join(vozGuardada(p), "voz-1.m4a")));
+    .find((p) => p.slice(0, 10) >= hoje && ler(p).reel && ler(p).voz !== false && vozPendente(ler(p), p).some(Boolean));
   if (!id) { console.log("nenhum reel na fila precisando de locução"); process.exit(process.argv[2] === "--precisa" ? 1 : 0); }
   if (process.argv[2] === "--precisa") { console.log(`${id} precisa de locução`); process.exit(0); }
 }
@@ -26,10 +26,13 @@ const post = ler(id);
 const tmp = path.join(here, "out", `${id}-voz`);
 mkdirSync(tmp, { recursive: true });
 process.env.REEL_GUARDA_VOZ = "1";
-process.env.REEL_SEM_CACHE = "1";
+// só as cenas que faltam (ou cujo texto mudou) gastam pedido; as outras vêm do que já está guardado
+const pend = vozPendente(post, id);
+if (!pend.some(Boolean)) { console.log(`${id}: locução já guardada e em dia`); process.exit(0); }
+console.log(`cenas para gravar: ${pend.map((p, i) => (p ? i + 1 : null)).filter(Boolean).join(", ")}`);
 console.log(`locução de ${id}:`);
 falas(post).forEach((t, i) => console.log(`  cena ${i + 1}: ${t}`));
-const v = narrate(post, tmp, ffmpeg);
+const v = narrate(post, tmp, ffmpeg, id);
 if (v.some((x) => !x)) { console.warn("a locução não saiu completa; tenta de novo no próximo dia"); process.exit(0); }
 // guarda em AAC mono (leve para o git) a fala original, antes do tratamento, que é refeito no render
 const dest = vozGuardada(id);
@@ -39,4 +42,5 @@ for (let i = 0; i < v.length; i++) {
   if (r.status !== 0) throw new Error(`ffmpeg: ${r.stderr}`);
 }
 rmSync(tmp, { recursive: true, force: true });
+writeFileSync(path.join(dest, "textos.json"), JSON.stringify(falas(post), null, 2) + "\n");
 console.log(`locução guardada em ${path.relative(here, dest)}`);
